@@ -4,15 +4,95 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <meta name="robots" content="noindex, nofollow">
-    <meta name="description" content="Топ онлайн казино с промокодом LUDKA. Проверенные площадки с лучшими бонусами, фриспинами и быстрыми выплатами. Выберите казино и получите эксклюзивные бонусы!">
+    <meta name="description" content="Топ Royal Partners казино с промокодом LUDKA. Проверенные площадки с лучшими бонусами, фриспинами и быстрыми выплатами. Промокод LUDKA работает только в Royal Partners казино.">
     <meta name="keywords" content="онлайн казино, промокод LUDKA, бонусы казино, фриспины, топ казино, казино с бонусами">
     <meta name="author" content="PosledniyLUDIK">
     <meta property="og:title" content="Топ Казино - Промокод LUDKA">
-    <meta property="og:description" content="Проверенные онлайн казино с эксклюзивным промокодом LUDKA и лучшими бонусами">
+    <meta property="og:description" content="Проверенные Royal Partners казино с эксклюзивным промокодом LUDKA и лучшими бонусами. Промокод работает только в Royal Partners казино.">
     <meta property="og:type" content="website">
     <link rel="preconnect" href="https://logo.clearbit.com">
     <link rel="dns-prefetch" href="https://logo.clearbit.com">
     <title>Топ Казино - Промокод LUDKA | Лучшие онлайн казино с бонусами</title>
+    
+    <!-- Патч для слабых устройств: определение производительности -->
+    <script>
+        (function() {
+            'use strict';
+            
+            // Определение слабого устройства
+            function detectLowEndDevice() {
+                const ua = navigator.userAgent.toLowerCase();
+                const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(ua);
+                
+                // Проверка на старые Android (версии до 8.0)
+                const androidMatch = ua.match(/android\s([0-9\.]*)/);
+                const androidVersion = androidMatch ? parseFloat(androidMatch[1]) : 0;
+                const isOldAndroid = androidVersion > 0 && androidVersion < 8.0;
+                
+                // Проверка на старые iPhone (iPhone 6 и ниже, iOS < 12)
+                const iosMatch = ua.match(/os\s([0-9_]*)/);
+                const iosVersion = iosMatch ? parseFloat(iosMatch[1].replace(/_/g, '.')) : 0;
+                const isOldIOS = iosVersion > 0 && iosVersion < 12.0;
+                
+                // Проверка количества ядер процессора
+                const hardwareConcurrency = navigator.hardwareConcurrency || 2;
+                const isLowCoreCount = hardwareConcurrency <= 2;
+                
+                // Проверка памяти устройства (если доступно)
+                const deviceMemory = navigator.deviceMemory || 2;
+                const isLowMemory = deviceMemory <= 2;
+                
+                // Проверка производительности через простой бенчмарк
+                let isSlowDevice = false;
+                try {
+                    const start = performance.now();
+                    for (let i = 0; i < 100000; i++) {
+                        Math.sqrt(i);
+                    }
+                    const duration = performance.now() - start;
+                    isSlowDevice = duration > 50; // Если простой цикл занимает > 50ms
+                } catch(e) {
+                    isSlowDevice = true;
+                }
+                
+                // Определение слабого устройства
+                const isLowEnd = isMobile && (
+                    isOldAndroid || 
+                    isOldIOS || 
+                    isLowCoreCount || 
+                    isLowMemory || 
+                    isSlowDevice ||
+                    /samsung|huawei|xiaomi|oppo|vivo|realme/i.test(ua) && hardwareConcurrency <= 4 // Бюджетные Android
+                );
+                
+                // Добавляем класс к body
+                if (isLowEnd) {
+                    document.documentElement.classList.add('low-end-device');
+                    document.documentElement.setAttribute('data-performance', 'low');
+                    
+                    // Сохраняем в localStorage для быстрого доступа
+                    try {
+                        localStorage.setItem('devicePerformance', 'low');
+                    } catch(e) {}
+                } else {
+                    document.documentElement.setAttribute('data-performance', 'normal');
+                    try {
+                        localStorage.setItem('devicePerformance', 'normal');
+                    } catch(e) {}
+                }
+                
+                return isLowEnd;
+            }
+            
+            // Запускаем определение сразу
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', detectLowEndDevice);
+            } else {
+                detectLowEndDevice();
+            }
+        })();
+    </script>
+    
     <style>
         * {
             margin: 0;
@@ -377,6 +457,11 @@
 
         html {
             scroll-behavior: smooth;
+            /* Оптимизация производительности скролла */
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            /* Улучшение плавности скролла */
+            will-change: scroll-position;
             scroll-padding-top: 120px;
         }
 
@@ -399,6 +484,12 @@
             color: var(--text-primary);
             min-height: 100vh;
             overflow-x: hidden;
+            /* Оптимизация производительности скролла */
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            /* Улучшение плавности скролла */
+            transform: translateZ(0);
+            backface-visibility: hidden;
             position: relative;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
@@ -1193,6 +1284,8 @@
             top: -42px;
             transform: translateX(-50%) translateY(10px);
             padding: 6px 14px;
+            z-index: 10005; /* Выше чем чатбот, чтобы toast был поверх */
+            pointer-events: none; /* Toast не должен блокировать клики */
             border-radius: 999px;
             background: rgba(5, 20, 40, 0.9);
             color: #e9fbff;
@@ -1202,7 +1295,7 @@
             transition: opacity 0.2s ease-out, transform 0.2s ease-out;
             border: 1px solid rgba(0, 255, 200, 0.4);
             box-shadow: 0 0 14px rgba(0, 255, 200, 0.45);
-            z-index: 20;
+            z-index: 10005; /* Выше чем чатбот (10003), чтобы toast был поверх */
         }
 
         .copy-toast.visible {
@@ -1221,10 +1314,11 @@
             border: 2px solid rgba(42, 187, 78, 0.5);
             border-radius: 16px;
             padding: 2rem 3rem;
-            z-index: 10001;
+            z-index: 10004; /* Выше чем чатбот (10003), чтобы уведомление было поверх */
             opacity: 0;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 20px 60px rgba(42, 187, 78, 0.3);
+            pointer-events: auto; /* Убеждаемся, что уведомление может получать события */
         }
 
         .copy-notification.show {
@@ -1943,6 +2037,21 @@
             .casino-card::before {
                 animation: none;
                 opacity: 0.1;
+            }
+            
+            /* Уведомления должны быть поверх чатбота на мобильных */
+            .copy-notification {
+                z-index: 10004 !important;
+                pointer-events: auto !important;
+            }
+            
+            .copy-toast {
+                z-index: 10005 !important;
+            }
+            
+            /* Убеждаемся, что чатбот не перекрывает уведомления */
+            .chatbot {
+                z-index: 10003;
             }
         }
 
@@ -3283,6 +3392,224 @@
                 width: 100%;
             }
         }
+
+        /* ============================================
+           ПАТЧ ДЛЯ СЛАБЫХ УСТРОЙСТВ (Android/iOS)
+           Отключает тяжелые эффекты для улучшения производительности
+           ============================================ */
+        .low-end-device,
+        [data-performance="low"] {
+            /* Отключаем все backdrop-filter и blur эффекты */
+            * {
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                filter: none !important;
+            }
+
+            /* Отключаем тяжелые тени */
+            .casino-card,
+            .section,
+            .nav-menu,
+            .stat-card,
+            .promo-cta,
+            .support-section {
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+            }
+
+            /* Упрощаем градиенты */
+            body::before,
+            body::after {
+                display: none !important;
+            }
+
+            /* Отключаем анимации пузырей */
+            .bubble {
+                display: none !important;
+            }
+
+            #bubbles {
+                display: none !important;
+            }
+
+            /* Упрощаем анимации карточек */
+            .casino-card {
+                transition: none !important;
+                transform: none !important;
+            }
+
+            .casino-card:hover {
+                transform: none !important;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+            }
+
+            /* Отключаем parallax эффекты */
+            .parallax-bg {
+                transform: none !important;
+                will-change: auto !important;
+            }
+
+            /* Упрощаем анимации кнопок */
+            .btn,
+            .tab-button,
+            .copy-btn,
+            .nav-link {
+                transition: background-color 0.2s ease !important;
+                transform: none !important;
+            }
+
+            .btn:hover,
+            .tab-button:hover {
+                transform: none !important;
+            }
+
+            /* Отключаем сложные градиенты в фоне */
+            .section {
+                background: rgba(4, 6, 22, 0.95) !important;
+            }
+
+            .casino-card {
+                background: rgba(9, 11, 26, 0.95) !important;
+            }
+
+            /* Упрощаем модальные окна */
+            .age-modal-content,
+            .chatbot {
+                background: rgba(4, 6, 22, 0.98) !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+            }
+
+            /* Отключаем анимации счетчиков */
+            .stat-value {
+                animation: none !important;
+            }
+
+            /* Упрощаем эффекты при скролле */
+            .nav-menu {
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                background: rgba(4, 6, 22, 0.98) !important;
+            }
+
+            /* Отключаем сложные эффекты на изображениях */
+            .casino-logo img,
+            .game-bg-image {
+                filter: none !important;
+            }
+
+            /* Упрощаем эффекты наведения */
+            .casino-card::before,
+            .casino-card::after {
+                display: none !important;
+            }
+
+            /* Отключаем glow эффекты */
+            *::before,
+            *::after {
+                box-shadow: none !important;
+            }
+
+            /* Упрощаем анимации промокода */
+            .promo-code {
+                animation: none !important;
+            }
+
+            /* Отключаем сложные переходы */
+            * {
+                will-change: auto !important;
+            }
+
+            /* Упрощаем анимации уведомлений */
+            .copy-toast,
+            .copy-notification {
+                animation: fadeIn 0.3s ease !important;
+            }
+
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+
+            /* Отключаем анимации загрузки */
+            .spinner,
+            .loading {
+                animation: none !important;
+            }
+
+            /* Упрощаем эффекты на талантах */
+            .talent-card {
+                transition: none !important;
+            }
+
+            .talent-card:hover {
+                transform: none !important;
+            }
+
+            /* Отключаем сложные эффекты на инструментах */
+            .tool-card {
+                transition: none !important;
+            }
+
+            .tool-card:hover {
+                transform: none !important;
+            }
+
+            /* Упрощаем эффекты на кнопках поддержки */
+            .support-btn,
+            .support-btn-secondary {
+                transition: background-color 0.2s ease !important;
+            }
+
+            /* Отключаем анимации фоновых волн */
+            body::before,
+            body::after {
+                animation: none !important;
+            }
+
+            /* Упрощаем эффекты на карточках статистики */
+            .stat-card {
+                transition: none !important;
+            }
+
+            .stat-card:hover {
+                transform: none !important;
+            }
+
+            /* Оптимизация для старых Android (до 8.0) */
+            @supports not (backdrop-filter: blur(10px)) {
+                * {
+                    backdrop-filter: none !important;
+                    -webkit-backdrop-filter: none !important;
+                }
+            }
+
+            /* Оптимизация для старых iPhone (iOS < 12) */
+            @supports (-webkit-touch-callout: none) {
+                * {
+                    -webkit-transform: translateZ(0) !important;
+                    transform: translateZ(0) !important;
+                }
+            }
+        }
+
+        /* Дополнительные оптимизации для очень слабых устройств */
+        @media (max-width: 480px) {
+            .low-end-device .casino-card,
+            [data-performance="low"] .casino-card {
+                padding: 0.75rem !important;
+                margin-bottom: 1rem !important;
+            }
+
+            .low-end-device .section,
+            [data-performance="low"] .section {
+                padding: 1rem !important;
+            }
+
+            .low-end-device .stat-value,
+            [data-performance="low"] .stat-value {
+                font-size: 1.5rem !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -3331,7 +3658,7 @@
                     <strong>Мобильная игра:</strong> Убедитесь, что казино имеет удобный мобильный интерфейс или приложение для игры на смартфоне.
                 </li>
                 <li>
-                    <strong>Промокод LUDKA:</strong> Не забудьте ввести промокод при регистрации — он даёт дополнительные бонусы и фриспины!
+                    <strong>Промокод LUDKA:</strong> Работает только в Royal Partners казино. Не забудьте ввести промокод при регистрации — он даёт дополнительные бонусы и фриспины!
                 </li>
             </ul>
             <button class="close-how-to-btn" id="closeHowToBtn">Понятно, спасибо!</button>
@@ -3345,9 +3672,9 @@
 
         <!-- CTA блок с промокодом -->
         <div class="promo-cta" id="promoCta">
-            <div class="promo-cta-text">Во всех казино ниже работает промокод LUDKA</div>
+            <div class="promo-cta-text">Промокод LUDKA работает только в Royal Partners казино</div>
             <div class="promo-counter">
-                Казино с промокодом LUDKA: <strong id="promoCounter">17</strong>
+                Royal Partners казино с промокодом LUDKA: <strong id="promoCounter">17</strong>
             </div>
             <div class="promo-code-block">
                 <span class="promo-code">LUDKA</span>
@@ -4469,37 +4796,90 @@
                 });
             }
             
-            lastScrollY = scrollY;
             ticking = false;
         }
         
-        window.addEventListener('scroll', () => {
-            if (!ticking) {
-                requestAnimationFrame(updateParallax);
-                ticking = true;
+        // Объединенный обработчик скролла для оптимизации производительности
+        let scrollTicking = false;
+        let lastScrollUpdate = 0;
+        
+        function unifiedScrollHandler() {
+            const now = performance.now();
+            const scrollY = window.scrollY;
+            
+            // Обновляем все функции скролла в одном кадре
+            updateParallax();
+            
+            // Прогресс-бар чтения
+            if (readingProgress) {
+                const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = windowHeight > 0 ? (scrollY / windowHeight) * 100 : 0;
+                readingProgress.style.width = scrolled + '%';
             }
-        }, { passive: true });
+            
+            // Активная навигация и хлебные крошки (только если скролл изменился значительно)
+            if (Math.abs(scrollY - lastScrollUpdate) > 50 || now - lastScrollUpdate > 100) {
+                throttledUpdateActiveNav();
+                updateBreadcrumbsOptimized();
+                lastScrollUpdate = scrollY;
+            }
+            
+            // Кнопка "Наверх" (обновляется всегда, но оптимизировано)
+            updateScrollToTop();
+            
+            scrollTicking = false;
+        }
+        
+        // Единый обработчик скролла с оптимизацией
+        // Используем passive: true для лучшей производительности
+        // и requestAnimationFrame для плавности
+        window.addEventListener('scroll', () => {
+            if (!scrollTicking) {
+                requestAnimationFrame(unifiedScrollHandler);
+                scrollTicking = true;
+            }
+        }, { passive: true, capture: false });
+        
+        // Дополнительная оптимизация: отключаем smooth scroll на слабых устройствах
+        const isLowEndDevice = document.documentElement.classList.contains('low-end-device') || 
+                                document.documentElement.getAttribute('data-performance') === 'low';
+        
+        if (isLowEndDevice) {
+            // Отключаем smooth scroll для слабых устройств
+            document.documentElement.style.scrollBehavior = 'auto';
+            
+            // Упрощаем unifiedScrollHandler для слабых устройств
+            const originalUnifiedHandler = unifiedScrollHandler;
+            unifiedScrollHandler = function() {
+                // Минимальные обновления для слабых устройств
+                const scrollY = window.scrollY;
+                
+                // Только критичные обновления
+                if (readingProgress) {
+                    const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                    const scrolled = windowHeight > 0 ? (scrollY / windowHeight) * 100 : 0;
+                    readingProgress.style.width = scrolled + '%';
+                }
+                
+                updateScrollToTop();
+                
+                // Обновляем навигацию реже
+                const now = performance.now();
+                if (Math.abs(scrollY - lastScrollUpdate) > 100 || now - lastScrollUpdate > 200) {
+                    throttledUpdateActiveNav();
+                    updateBreadcrumbsOptimized();
+                    lastScrollUpdate = scrollY;
+                }
+                
+                scrollTicking = false;
+            };
+        }
 
 
         // ========== ВСЕ НОВЫЕ ФУНКЦИИ ==========
 
-        // 1. Прогресс-бар чтения (оптимизированный с throttling)
+        // 1. Прогресс-бар чтения (оптимизированный - объединен с общим обработчиком)
         const readingProgress = document.getElementById('readingProgress');
-        if (readingProgress) {
-            let progressTicking = false;
-            function updateProgress() {
-                const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-                const scrolled = (window.scrollY / windowHeight) * 100;
-                readingProgress.style.width = scrolled + '%';
-                progressTicking = false;
-            }
-            window.addEventListener('scroll', () => {
-                if (!progressTicking) {
-                    requestAnimationFrame(updateProgress);
-                    progressTicking = true;
-                }
-            }, { passive: true });
-        }
 
         // 2. Индикатор активной секции в навигации
         const navLinks = document.querySelectorAll('.nav-link[data-section]');
@@ -4525,19 +4905,63 @@
             });
         }
 
-        // Throttling для updateActiveNav
+        // Оптимизированное обновление активной навигации (кэширование элементов)
+        const cachedNavLinks = Array.from(navLinks);
+        const cachedSections = Array.from(sections).map(section => ({
+            id: section.id,
+            top: section.offsetTop,
+            height: section.offsetHeight
+        }));
+        
+        function updateActiveNavOptimized() {
+            const scrollY = window.scrollY + 150;
+            let currentSection = '';
+
+            cachedSections.forEach(section => {
+                if (scrollY >= section.top && scrollY < section.top + section.height) {
+                    currentSection = section.id;
+                }
+            });
+
+            cachedNavLinks.forEach(link => {
+                const isActive = link.getAttribute('data-section') === currentSection;
+                if (isActive && !link.classList.contains('active')) {
+                    link.classList.add('active');
+                } else if (!isActive && link.classList.contains('active')) {
+                    link.classList.remove('active');
+                }
+            });
+        }
+        
+        // Throttling для updateActiveNav (оптимизировано)
         let navTicking = false;
         function throttledUpdateActiveNav() {
-            updateActiveNav();
-            navTicking = false;
-        }
-        window.addEventListener('scroll', () => {
             if (!navTicking) {
-                requestAnimationFrame(throttledUpdateActiveNav);
+                updateActiveNavOptimized();
                 navTicking = true;
+                requestAnimationFrame(() => {
+                    navTicking = false;
+                });
             }
+        }
+        
+        // Обновляем кэш при resize
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                cachedSections.forEach((section, index) => {
+                    const el = sections[index];
+                    if (el) {
+                        section.top = el.offsetTop;
+                        section.height = el.offsetHeight;
+                    }
+                });
+                updateActiveNavOptimized();
+            }, 250);
         }, { passive: true });
-        updateActiveNav();
+        
+        updateActiveNavOptimized();
 
         // Обработка кликов по навигационным ссылкам
         navLinks.forEach(link => {
@@ -4558,17 +4982,27 @@
             });
         });
 
-        // 3. Кнопка "Наверх"
+        // 3. Кнопка "Наверх" (оптимизировано - объединено с общим обработчиком скролла)
         const scrollToTopBtn = document.getElementById('scrollToTop');
-        if (scrollToTopBtn) {
-            window.addEventListener('scroll', () => {
-                if (window.scrollY > 300) {
+        let scrollToTopLastY = 0;
+        let scrollToTopVisible = false;
+        
+        function updateScrollToTop() {
+            const scrollY = window.scrollY;
+            const shouldBeVisible = scrollY > 300;
+            
+            if (shouldBeVisible !== scrollToTopVisible && scrollToTopBtn) {
+                scrollToTopVisible = shouldBeVisible;
+                if (shouldBeVisible) {
                     scrollToTopBtn.classList.add('visible');
                 } else {
                     scrollToTopBtn.classList.remove('visible');
                 }
-            }, { passive: true });
+            }
+            scrollToTopLastY = scrollY;
+        }
 
+        if (scrollToTopBtn) {
             scrollToTopBtn.addEventListener('click', () => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
@@ -4652,7 +5086,7 @@
             });
         })();
 
-        // 7. Хлебные крошки
+        // 7. Хлебные крошки (оптимизировано - использует кэшированные секции)
         const breadcrumbs = document.getElementById('breadcrumbs');
         const breadcrumbCurrent = document.getElementById('breadcrumbCurrent');
         const sectionTitles = {
@@ -4664,40 +5098,34 @@
             'support': 'Поддержка'
         };
 
-        function updateBreadcrumbs() {
+        function updateBreadcrumbsOptimized() {
             if (!breadcrumbCurrent) return;
             
             let currentSection = '';
             const scrollY = window.scrollY + 200;
 
-            sections.forEach(section => {
-                const sectionTop = section.offsetTop;
-                const sectionHeight = section.offsetHeight;
-                if (scrollY >= sectionTop && scrollY < sectionTop + sectionHeight) {
+            // Используем кэшированные секции вместо querySelectorAll
+            cachedSections.forEach(section => {
+                if (scrollY >= section.top && scrollY < section.top + section.height) {
                     currentSection = section.id;
                 }
             });
 
             if (currentSection && sectionTitles[currentSection]) {
-                breadcrumbCurrent.textContent = sectionTitles[currentSection];
+                const newText = sectionTitles[currentSection];
+                // Обновляем только если текст изменился
+                if (breadcrumbCurrent.textContent !== newText) {
+                    breadcrumbCurrent.textContent = newText;
+                }
             } else {
-                breadcrumbCurrent.textContent = 'Выберите раздел';
+                const defaultText = 'Выберите раздел';
+                if (breadcrumbCurrent.textContent !== defaultText) {
+                    breadcrumbCurrent.textContent = defaultText;
+                }
             }
         }
-
-        // Throttling для updateBreadcrumbs
-        let breadcrumbTicking = false;
-        function throttledUpdateBreadcrumbs() {
-            updateBreadcrumbs();
-            breadcrumbTicking = false;
-        }
-        window.addEventListener('scroll', () => {
-            if (!breadcrumbTicking) {
-                requestAnimationFrame(throttledUpdateBreadcrumbs);
-                breadcrumbTicking = true;
-            }
-        }, { passive: true });
-        updateBreadcrumbs();
+        
+        updateBreadcrumbsOptimized();
 
 
         // 9. Ленивая загрузка изображений (уже реализовано выше в фильтрах)
@@ -4799,7 +5227,7 @@
             }
 
             const chatbotResponses = {
-                'промокод': 'Промокод LUDKA работает во всех казино из раздела "ТОП с промокодом LUDKA". Просто скопируйте его и введите при регистрации!',
+                'промокод': 'Промокод LUDKA работает только в Royal Partners казино из раздела "ТОП с промокодом LUDKA". Просто скопируйте его и введите при регистрации!',
                 'бонус': 'Лучшие бонусы доступны в казино Royal Partners с промокодом LUDKA. Там вы получите до 50 бесплатных спинов и welcome-пакет!',
                 'казино': 'Рекомендую начать с казино из раздела "ТОП с промокодом LUDKA" - это проверенные Royal Partners с лучшими условиями.',
                 'регистрация': 'Для регистрации перейдите на сайт казино, нажмите "Регистрация" и введите промокод LUDKA в соответствующее поле.',
@@ -4912,9 +5340,12 @@
         // Уже реализовано через loading="lazy" и onerror для fallback
         // Можно добавить WebP поддержку в будущем через <picture> теги
 
-        // Генерация подводных пузырей
+        // Генерация подводных пузырей (только для мощных устройств)
         const bubblesContainer = document.getElementById('bubbles');
-        if (bubblesContainer) {
+        const isLowEnd = document.documentElement.classList.contains('low-end-device') || 
+                         document.documentElement.getAttribute('data-performance') === 'low';
+        
+        if (bubblesContainer && !isLowEnd) {
             const bubbleCount = 30;
 
             for (let i = 0; i < bubbleCount; i++) {
@@ -4929,6 +5360,90 @@
                 bubble.style.opacity = 0.3 + Math.random() * 0.4;
                 bubblesContainer.appendChild(bubble);
             }
+        } else if (bubblesContainer && isLowEnd) {
+            // Для слабых устройств скрываем контейнер пузырей
+            bubblesContainer.style.display = 'none';
+        }
+
+        // Оптимизации для слабых устройств
+        if (isLowEnd) {
+            // Отключаем тяжелые обработчики событий
+            let scrollTimeout;
+            const originalScrollHandler = window.onscroll;
+            
+            // Упрощаем обработку скролла
+            window.addEventListener('scroll', function() {
+                if (scrollTimeout) {
+                    cancelAnimationFrame(scrollTimeout);
+                }
+                scrollTimeout = requestAnimationFrame(function() {
+                    // Минимальная обработка скролла
+                    const navMenu = document.querySelector('.nav-menu');
+                    if (navMenu) {
+                        if (window.scrollY > 100) {
+                            navMenu.classList.add('scrolled');
+                        } else {
+                            navMenu.classList.remove('scrolled');
+                        }
+                    }
+                });
+            }, { passive: true });
+
+            // Отключаем parallax эффекты
+            const parallaxElements = document.querySelectorAll('.parallax-bg');
+            parallaxElements.forEach(el => {
+                el.style.transform = 'none';
+                el.style.willChange = 'auto';
+            });
+
+            // Упрощаем анимации карточек казино
+            const casinoCards = document.querySelectorAll('.casino-card');
+            casinoCards.forEach(card => {
+                card.style.transition = 'none';
+                // Убираем обработчики mousemove для эффекта "магнита"
+                card.onmousemove = null;
+            });
+
+            // Отключаем сложные анимации счетчиков
+            const statValues = document.querySelectorAll('.stat-value');
+            statValues.forEach(stat => {
+                stat.style.animation = 'none';
+            });
+
+            // Упрощаем обработку resize
+            let resizeTimeout;
+            window.addEventListener('resize', function() {
+                if (resizeTimeout) {
+                    clearTimeout(resizeTimeout);
+                }
+                resizeTimeout = setTimeout(function() {
+                    // Минимальная обработка изменения размера
+                }, 250);
+            }, { passive: true });
+
+            // Отключаем Intersection Observer для слабых устройств (используем простую проверку)
+            if ('IntersectionObserver' in window) {
+                // Используем упрощенную версию
+                const observerOptions = {
+                    rootMargin: '50px',
+                    threshold: 0.1
+                };
+            }
+
+            // Уменьшаем количество DOM операций
+            const originalQuerySelector = document.querySelector;
+            const originalQuerySelectorAll = document.querySelectorAll;
+            
+            // Кэшируем часто используемые элементы
+            const cachedElements = {};
+            function getCachedElement(selector) {
+                if (!cachedElements[selector]) {
+                    cachedElements[selector] = originalQuerySelector.call(document, selector);
+                }
+                return cachedElements[selector];
+            }
+
+            console.log('🔧 Режим оптимизации для слабых устройств активирован');
         }
     </script>
 
