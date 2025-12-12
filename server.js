@@ -57,6 +57,30 @@ const db = new sqlite3.Database('./analytics.db', (err) => {
                 console.log('Events table ready');
             }
         });
+
+        // Создание таблицы для снимков статистики
+        db.run(`CREATE TABLE IF NOT EXISTS stats_snapshots (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            snapshot_date DATE NOT NULL,
+            total_pageviews INTEGER DEFAULT 0,
+            total_clicks INTEGER DEFAULT 0,
+            conversion_rate REAL DEFAULT 0,
+            top_casino_id TEXT,
+            top_casino_label TEXT,
+            top_casino_clicks INTEGER DEFAULT 0,
+            device_mobile INTEGER DEFAULT 0,
+            device_desktop INTEGER DEFAULT 0,
+            device_unknown INTEGER DEFAULT 0,
+            snapshot_data TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(snapshot_date)
+        )`, (err) => {
+            if (err) {
+                console.error('Error creating stats_snapshots table:', err);
+            } else {
+                console.log('Stats snapshots table ready');
+            }
+        });
     }
 });
 
@@ -266,6 +290,148 @@ app.get('/api/stats/events', authenticateAdmin, (req, res) => {
             return res.status(500).json({ error: 'Database error' });
         }
         res.json(rows);
+    });
+});
+
+// API: Сохранение снимка статистики
+app.post('/api/stats/snapshot', authenticateAdmin, (req, res) => {
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Получаем статистику за сегодня
+    db.all(`SELECT 
+        COUNT(CASE WHEN type = 'page_view' THEN 1 END) as total_pageviews,
+        COUNT(CASE WHEN type = 'casino_click' THEN 1 END) as total_clicks
+        FROM events 
+        WHERE DATE(created_at) = '${today}'`, (err, rows) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database error' });
+        }
+
+        const stats = rows[0] || { total_pageviews: 0, total_clicks: 0 };
+        const pageviews = parseInt(stats.total_pageviews) || 0;
+        const clicks = parseInt(stats.total_clicks) || 0;
+        const conversion = pageviews > 0 ? ((clicks / pageviews) * 100).toFixed(2) : 0;
+
+        // Получаем топ казино за сегодня
+        db.all(`SELECT 
+            casino_id,
+            label,
+            COUNT(*) as clicks
+            FROM events
+            WHERE type = 'casino_click' AND DATE(created_at) = '${today}'
+            GROUP BY casino_id, label
+            ORDER BY clicks DESC
+            LIMIT 1`, (err, topCasino) => {
+            if (err) {
+                return res.status(500).json({ error: 'Database error' });
+            }
+
+            // Статистика по устройствам
+            db.all(`SELECT 
+                COALESCE(device_type, 'Unknown') as device,
+                COUNT(*) as count
+                FROM events
+                WHERE DATE(created_at) = '${today}'
+                GROUP BY device_type`, (err, devices) => {
+                if (err) {
+                    return res.status(500).json({ error: 'Database error' });
+                }
+
+                const deviceStats = {
+                    mobile: 0,
+                    desktop: 0,
+                    unknown: 0
+                };
+
+                devices.forEach(d => {
+                    const device = (d.device || '').toLowerCase();
+                    if (device.includes('mobile') || device.includes('android') || device.includes('iphone')) {
+                        deviceStats.mobile += d.count;
+                    } else if (device.includes('desktop') || device.includes('windows') || device.includes('mac') || device.includes('linux')) {
+                        deviceStats.desktop += d.count;
+                    } else {
+                        deviceStats.unknown += d.count;
+                    }
+                });
+
+                const snapshotData = JSON.stringify({
+                    breakdown: [],
+                    devices: devices
+                });
+
+                // Сохраняем или обновляем снимок
+                db.run(`INSERT OR REPLACE INTO stats_snapshots 
+                    (snapshot_date, total_pageviews, total_clicks, conversion_rate, 
+                     top_casino_id, top_casino_label, top_casino_clicks,
+                     device_mobile, device_desktop, device_unknown, snapshot_data)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [today, pageviews, clicks, conversion,
+                     topCasino[0]?.casino_id || null,
+                     topCasino[0]?.label || null,
+                     topCasino[0]?.clicks || 0,
+                     deviceStats.mobile,
+                     deviceStats.desktop,
+                     deviceStats.unknown,
+                     snapshotData],
+                    function(err) {
+                        if (err) {
+                            console.error('Error saving snapshot:', err);
+                            return res.status(500).json({ error: 'Failed to save snapshot' });
+                        }
+                        res.json({ success: true, id: this.lastID });
+                    }
+                );
+            });
+        });
+    });
+});
+
+// API: Получение истории снимков
+app.get('/api/stats/snapshots', authenticateAdmin, (req, res) => {
+    const { limit = 30 } = req.query;
+    
+    db.all(`SELECT * FROM stats_snapshots 
+        ORDER BY snapshot_date DESC 
+        LIMIT ?`, [limit], (err, rows) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database error' });
+        }
+        res.json(rows);
+    });
+});
+
+// API: Получение сравнения статистики (сегодня vs вчера)
+app.get('/api/stats/compare', authenticateAdmin, (req, res) => {
+    const today = new Date().toISOString().split('T')[0];
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+    db.all(`SELECT * FROM stats_snapshots 
+        WHERE snapshot_date IN (?, ?)
+        ORDER BY snapshot_date DESC`, [today, yesterdayStr], (err, rows) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database error' });
+        }
+
+        const todaySnapshot = rows.find(r => r.snapshot_date === today);
+        const yesterdaySnapshot = rows.find(r => r.snapshot_date === yesterdayStr);
+
+        res.json({
+            today: todaySnapshot || null,
+            yesterday: yesterdaySnapshot || null,
+            changes: {
+                pageviews: todaySnapshot && yesterdaySnapshot 
+                    ? todaySnapshot.total_pageviews - yesterdaySnapshot.total_pageviews 
+                    : null,
+                clicks: todaySnapshot && yesterdaySnapshot 
+                    ? todaySnapshot.total_clicks - yesterdaySnapshot.total_clicks 
+                    : null,
+                conversion: todaySnapshot && yesterdaySnapshot 
+                    ? (parseFloat(todaySnapshot.conversion_rate) - parseFloat(yesterdaySnapshot.conversion_rate)).toFixed(2)
+                    : null
+            }
+        });
     });
 });
 

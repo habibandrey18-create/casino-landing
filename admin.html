@@ -120,11 +120,11 @@
         }
 
         .admin-panel {
-            display: none;
+            display: none !important;
         }
 
         .admin-panel.active {
-            display: block;
+            display: block !important;
         }
 
         /* Шапка */
@@ -212,6 +212,96 @@
         .stat-card .change {
             font-size: 0.85rem;
             color: rgba(255, 255, 255, 0.6);
+        }
+
+        .stat-card-highlight {
+            border: 2px solid rgba(0, 212, 255, 0.5);
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .trend-up {
+            color: #00ffc8;
+        }
+
+        .trend-down {
+            color: #ff7675;
+        }
+
+        .trend-neutral {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .compare-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .compare-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .compare-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .compare-value {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .history-section {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 2rem;
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            margin-bottom: 2rem;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .history-table {
+            overflow-x: auto;
+            border-radius: 12px;
+        }
+
+        .history-table table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .history-table th {
+            background: rgba(0, 212, 255, 0.15);
+            font-weight: 600;
+            color: #00d4ff;
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .history-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .history-table tr:hover {
+            background: rgba(255, 255, 255, 0.08);
         }
 
         /* Фильтры */
@@ -547,22 +637,39 @@
                 <div class="stat-card">
                     <h3>👁️ Просмотры страниц</h3>
                     <div class="value" id="totalPageviews">0</div>
-                    <div class="change">За выбранный период</div>
+                    <div class="change" id="pageviewsChange">
+                        <span id="pageviewsTrend"></span> За выбранный период
+                    </div>
                 </div>
                 <div class="stat-card">
                     <h3>🖱️ Клики по казино</h3>
                     <div class="value" id="totalClicks">0</div>
-                    <div class="change">За выбранный период</div>
+                    <div class="change" id="clicksChange">
+                        <span id="clicksTrend"></span> За выбранный период
+                    </div>
                 </div>
                 <div class="stat-card">
                     <h3>📈 Конверсия</h3>
                     <div class="value" id="conversion">0%</div>
-                    <div class="change">Клики / Просмотры × 100%</div>
+                    <div class="change" id="conversionChange">
+                        <span id="conversionTrend"></span> Клики / Просмотры × 100%
+                    </div>
                 </div>
                 <div class="stat-card">
                     <h3>📱 Устройства</h3>
                     <div class="value" id="totalDevices">-</div>
                     <div class="change" id="deviceBreakdown">Загрузка...</div>
+                </div>
+                <div class="stat-card stat-card-highlight">
+                    <h3>📊 Сравнение: Сегодня vs Вчера</h3>
+                    <div class="compare-stats" id="compareStats">
+                        <div class="loading">Загрузка...</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <h3>💾 Последнее сохранение</h3>
+                    <div class="value" id="lastSnapshot" style="font-size: 1.2rem;">-</div>
+                    <div class="change" id="snapshotStatus">Статистика сохраняется автоматически</div>
                 </div>
             </div>
 
@@ -602,6 +709,22 @@
                 </div>
             </div>
 
+            <!-- История снимков -->
+            <div class="history-section">
+                <div class="history-header">
+                    <h2>📜 История сохранений статистики</h2>
+                    <button class="btn btn-secondary" onclick="loadHistory()">🔄 Обновить</button>
+                </div>
+                <div class="history-table">
+                    <div id="historyTable">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Загрузка истории...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Таблица казино -->
             <div class="table-section">
                 <div class="table-header">
@@ -635,12 +758,85 @@
             try {
                 const response = await fetch('/api/admin/check');
                 if (response.ok) {
+                    // Авторизация успешна - скрываем форму входа и показываем панель
+                    document.getElementById('loginForm').style.display = 'none';
                     showAdminPanel();
                     loadAllStats();
+                    // Загружаем историю при проверке авторизации
+                    setTimeout(() => loadHistory(), 1000);
+                } else {
+                    // Авторизация не прошла - показываем форму входа, скрываем панель
+                    document.getElementById('loginForm').style.display = 'block';
+                    document.getElementById('adminPanel').classList.remove('active');
+                    // Очищаем данные, если они были загружены ранее
+                    clearAllData();
                 }
             } catch (err) {
+                // Ошибка сети - показываем форму входа
                 console.error('Auth check failed:', err);
+                document.getElementById('loginForm').style.display = 'block';
+                document.getElementById('adminPanel').classList.remove('active');
+                clearAllData();
             }
+        }
+
+        // Очистка всех данных при выходе или отсутствии авторизации
+        function clearAllData() {
+            // Очищаем статистику
+            document.getElementById('totalPageviews').textContent = '0';
+            document.getElementById('totalClicks').textContent = '0';
+            document.getElementById('conversion').textContent = '0%';
+            document.getElementById('totalDevices').textContent = '-';
+            document.getElementById('deviceBreakdown').textContent = 'Загрузка...';
+            
+            // Очищаем тренды
+            document.getElementById('pageviewsTrend').textContent = '';
+            document.getElementById('clicksTrend').textContent = '';
+            document.getElementById('conversionTrend').textContent = '';
+            
+            // Очищаем сравнение
+            document.getElementById('compareStats').innerHTML = '<div class="loading">Загрузка...</div>';
+            
+            // Очищаем информацию о сохранении
+            document.getElementById('lastSnapshot').textContent = '-';
+            document.getElementById('snapshotStatus').textContent = 'Статистика сохраняется автоматически';
+            document.getElementById('snapshotStatus').style.color = '';
+            
+            // Очищаем таблицу
+            document.getElementById('casinoTable').innerHTML = '<div class="loading"><div class="spinner"></div>Загрузка данных...</div>';
+            
+            // Очищаем историю
+            document.getElementById('historyTable').innerHTML = '<div class="loading"><div class="spinner"></div>Загрузка истории...</div>';
+            
+            // Уничтожаем графики
+            if (dailyChart) {
+                dailyChart.destroy();
+                dailyChart = null;
+            }
+            if (devicesChart) {
+                devicesChart.destroy();
+                devicesChart = null;
+            }
+            if (eventsChart) {
+                eventsChart.destroy();
+                eventsChart = null;
+            }
+            
+            // Останавливаем автообновление
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
+            const checkbox = document.getElementById('autoRefreshCheckbox');
+            if (checkbox) checkbox.checked = false;
+            document.getElementById('autoRefreshToggle')?.classList.remove('active');
+            
+            // Очищаем данные
+            currentData = null;
+            
+            // Очищаем поиск
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) searchInput.value = '';
         }
 
         // Вход
@@ -660,6 +856,8 @@
                     document.getElementById('loginForm').style.display = 'none';
                     showAdminPanel();
                     loadAllStats();
+                    // Загружаем историю при входе
+                    setTimeout(() => loadHistory(), 1000);
                 } else {
                     errorDiv.textContent = '❌ Неверный пароль';
                 }
@@ -673,14 +871,15 @@
             await fetch('/api/admin/logout', { method: 'POST' });
             document.getElementById('loginForm').style.display = 'block';
             document.getElementById('adminPanel').classList.remove('active');
-            if (autoRefreshInterval) {
-                clearInterval(autoRefreshInterval);
-                autoRefreshInterval = null;
-            }
+            clearAllData();
+            // Очищаем поле пароля
+            document.getElementById('password').value = '';
+            document.getElementById('password').focus();
         }
 
         // Показать админ-панель
         function showAdminPanel() {
+            document.getElementById('loginForm').style.display = 'none';
             document.getElementById('adminPanel').classList.add('active');
         }
 
@@ -716,12 +915,156 @@
 
         // Загрузка всех статистик
         async function loadAllStats() {
+            // Проверяем, что панель активна перед загрузкой данных
+            const adminPanel = document.getElementById('adminPanel');
+            if (!adminPanel || !adminPanel.classList.contains('active')) {
+                console.warn('Панель не активна, данные не загружаются');
+                return;
+            }
+            
             await Promise.all([
                 loadStats(),
                 loadDailyStats(),
                 loadDevicesStats(),
-                loadEventsStats()
+                loadEventsStats(),
+                loadCompareStats(),
+                saveSnapshot()
             ]);
+        }
+
+        // Автоматическое сохранение снимка статистики
+        async function saveSnapshot() {
+            try {
+                const response = await fetch('/api/stats/snapshot', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const now = new Date();
+                    const timeStr = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    document.getElementById('lastSnapshot').textContent = timeStr;
+                    document.getElementById('snapshotStatus').textContent = '✅ Статистика сохранена';
+                    document.getElementById('snapshotStatus').style.color = '#00ffc8';
+                    
+                    // Обновляем историю после сохранения
+                    setTimeout(() => {
+                        loadHistory();
+                    }, 500);
+                }
+            } catch (err) {
+                console.error('Error saving snapshot:', err);
+                document.getElementById('snapshotStatus').textContent = '❌ Ошибка сохранения';
+                document.getElementById('snapshotStatus').style.color = '#ff7675';
+            }
+        }
+
+        // Загрузка сравнения статистики (сегодня vs вчера)
+        async function loadCompareStats() {
+            try {
+                const response = await fetch('/api/stats/compare');
+                if (!response.ok) throw new Error('Failed to load compare stats');
+                const data = await response.json();
+
+                const compareHtml = data.today && data.yesterday ? `
+                    <div class="compare-item">
+                        <span class="compare-label">Просмотры:</span>
+                        <span class="compare-value">
+                            ${formatNumber(data.today.total_pageviews)}
+                            ${data.changes.pageviews !== null ? 
+                                `<span class="${data.changes.pageviews >= 0 ? 'trend-up' : 'trend-down'}">
+                                    (${data.changes.pageviews >= 0 ? '+' : ''}${data.changes.pageviews})
+                                </span>` : ''}
+                        </span>
+                    </div>
+                    <div class="compare-item">
+                        <span class="compare-label">Клики:</span>
+                        <span class="compare-value">
+                            ${formatNumber(data.today.total_clicks)}
+                            ${data.changes.clicks !== null ? 
+                                `<span class="${data.changes.clicks >= 0 ? 'trend-up' : 'trend-down'}">
+                                    (${data.changes.clicks >= 0 ? '+' : ''}${data.changes.clicks})
+                                </span>` : ''}
+                        </span>
+                    </div>
+                    <div class="compare-item">
+                        <span class="compare-label">Конверсия:</span>
+                        <span class="compare-value">
+                            ${parseFloat(data.today.conversion_rate).toFixed(2)}%
+                            ${data.changes.conversion !== null ? 
+                                `<span class="${parseFloat(data.changes.conversion) >= 0 ? 'trend-up' : 'trend-down'}">
+                                    (${parseFloat(data.changes.conversion) >= 0 ? '+' : ''}${data.changes.conversion}%)
+                                </span>` : ''}
+                        </span>
+                    </div>
+                ` : '<div class="loading">Недостаточно данных для сравнения</div>';
+
+                document.getElementById('compareStats').innerHTML = compareHtml;
+            } catch (err) {
+                console.error('Error loading compare stats:', err);
+                document.getElementById('compareStats').innerHTML = '<div class="loading">Ошибка загрузки</div>';
+            }
+        }
+
+        // Загрузка истории снимков
+        async function loadHistory() {
+            try {
+                const response = await fetch('/api/stats/snapshots?limit=30');
+                if (!response.ok) throw new Error('Failed to load history');
+                const data = await response.json();
+
+                if (!data || data.length === 0) {
+                    document.getElementById('historyTable').innerHTML = '<div class="loading">Нет сохраненных снимков</div>';
+                    return;
+                }
+
+                const historyHtml = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Дата</th>
+                                <th>Просмотры</th>
+                                <th>Клики</th>
+                                <th>Конверсия</th>
+                                <th>Топ казино</th>
+                                <th>Мобильные</th>
+                                <th>Десктоп</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.map(snapshot => {
+                                const date = new Date(snapshot.snapshot_date);
+                                const dateStr = date.toLocaleDateString('ru-RU', { 
+                                    day: '2-digit', 
+                                    month: '2-digit', 
+                                    year: 'numeric' 
+                                });
+                                return `
+                                    <tr>
+                                        <td><strong>${dateStr}</strong></td>
+                                        <td>${formatNumber(snapshot.total_pageviews)}</td>
+                                        <td>${formatNumber(snapshot.total_clicks)}</td>
+                                        <td>
+                                            <span class="badge ${getConversionBadgeClass(parseFloat(snapshot.conversion_rate))}">
+                                                ${parseFloat(snapshot.conversion_rate).toFixed(2)}%
+                                            </span>
+                                        </td>
+                                        <td>${snapshot.top_casino_label || snapshot.top_casino_id || '-'}</td>
+                                        <td>${formatNumber(snapshot.device_mobile)}</td>
+                                        <td>${formatNumber(snapshot.device_desktop)}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                `;
+
+                document.getElementById('historyTable').innerHTML = historyHtml;
+            } catch (err) {
+                console.error('Error loading history:', err);
+                document.getElementById('historyTable').innerHTML = '<div class="loading">Ошибка загрузки истории</div>';
+            }
         }
 
         // Загрузка основной статистики
@@ -744,13 +1087,18 @@
                 const data = await response.json();
                 currentData = data;
                 
-                document.getElementById('totalPageviews').textContent = formatNumber(data.total_pageviews || 0);
-                document.getElementById('totalClicks').textContent = formatNumber(data.total_clicks || 0);
-                
-                const conversion = data.total_pageviews > 0 
-                    ? ((data.total_clicks / data.total_pageviews) * 100).toFixed(2)
+                const pageviews = data.total_pageviews || 0;
+                const clicks = data.total_clicks || 0;
+                const conversion = pageviews > 0 
+                    ? ((clicks / pageviews) * 100).toFixed(2)
                     : 0;
+
+                document.getElementById('totalPageviews').textContent = formatNumber(pageviews);
+                document.getElementById('totalClicks').textContent = formatNumber(clicks);
                 document.getElementById('conversion').textContent = conversion + '%';
+
+                // Обновляем тренды (показываем изменения, если есть данные для сравнения)
+                updateTrends();
 
                 renderCasinoTable(data.breakdown || []);
             } catch (err) {
@@ -1023,7 +1371,8 @@
                 toggle.classList.add('active');
                 autoRefreshInterval = setInterval(() => {
                     loadAllStats();
-                    showToast('📊 Данные обновлены');
+                    loadHistory(); // Обновляем историю при автообновлении
+                    showToast('📊 Данные обновлены и сохранены');
                 }, 30000);
             } else {
                 toggle.classList.remove('active');
@@ -1080,6 +1429,38 @@
             }, 3000);
         }
 
+        // Обновление трендов на основе сравнения
+        async function updateTrends() {
+            try {
+                const response = await fetch('/api/stats/compare');
+                if (!response.ok) return;
+                const data = await response.json();
+
+                if (data.changes && data.changes.pageviews !== null) {
+                    const pageviewsTrend = data.changes.pageviews >= 0 ? '📈' : '📉';
+                    const pageviewsClass = data.changes.pageviews >= 0 ? 'trend-up' : 'trend-down';
+                    document.getElementById('pageviewsTrend').innerHTML = 
+                        `<span class="${pageviewsClass}">${pageviewsTrend} ${Math.abs(data.changes.pageviews)}</span>`;
+                }
+
+                if (data.changes && data.changes.clicks !== null) {
+                    const clicksTrend = data.changes.clicks >= 0 ? '📈' : '📉';
+                    const clicksClass = data.changes.clicks >= 0 ? 'trend-up' : 'trend-down';
+                    document.getElementById('clicksTrend').innerHTML = 
+                        `<span class="${clicksClass}">${clicksTrend} ${Math.abs(data.changes.clicks)}</span>`;
+                }
+
+                if (data.changes && data.changes.conversion !== null) {
+                    const conversionTrend = parseFloat(data.changes.conversion) >= 0 ? '📈' : '📉';
+                    const conversionClass = parseFloat(data.changes.conversion) >= 0 ? 'trend-up' : 'trend-down';
+                    document.getElementById('conversionTrend').innerHTML = 
+                        `<span class="${conversionClass}">${conversionTrend} ${Math.abs(parseFloat(data.changes.conversion))}%</span>`;
+                }
+            } catch (err) {
+                console.error('Error updating trends:', err);
+            }
+        }
+
         // Обработчики фильтров
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -1090,8 +1471,20 @@
             });
         });
 
-        // Проверка при загрузке
-        checkAuth();
+        // Инициализация при загрузке страницы
+        // Убеждаемся, что форма входа видна, а панель скрыта по умолчанию
+        (function init() {
+            const loginForm = document.getElementById('loginForm');
+            const adminPanel = document.getElementById('adminPanel');
+            
+            if (loginForm) loginForm.style.display = 'block';
+            if (adminPanel) adminPanel.classList.remove('active');
+            
+            // Проверяем авторизацию после небольшой задержки, чтобы DOM точно был готов
+            setTimeout(() => {
+                checkAuth();
+            }, 100);
+        })();
     </script>
 </body>
 </html>
