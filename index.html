@@ -762,111 +762,6 @@
         /* Декоративные боковые элементы убраны */
 
         /* Hero-блок с говорящим рыбаком */
-        .profile-section {
-            display: flex;
-            align-items: center;
-            gap: 3rem;
-            margin-bottom: 4rem;
-            padding: 2rem;
-            min-height: 300px;
-            position: relative;
-            opacity: 0;
-            animation: heroFadeIn 1s ease-out forwards;
-        }
-
-        @keyframes heroFadeIn {
-            to {
-                opacity: 1;
-            }
-        }
-
-        /* Персонаж-рыбак слева */
-        .fisherman-character {
-            flex-shrink: 0;
-            width: 200px;
-            height: 300px;
-            position: relative;
-            opacity: 0;
-            transform: translateX(-50px);
-            animation: fishermanSlideIn 0.8s ease-out 0.3s forwards;
-        }
-
-        @keyframes fishermanSlideIn {
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .fisherman-character::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: url('images/fishingbackground.png');
-            background-size: cover;
-            background-position: left center;
-            background-repeat: no-repeat;
-            border-radius: 20px;
-            filter: brightness(1.1) contrast(1.1);
-            z-index: 1;
-        }
-
-        /* Речевой пузырь */
-        .speech-bubble {
-            flex: 1;
-            background: linear-gradient(135deg, 
-                rgba(0, 212, 255, 0.15) 0%, 
-                rgba(78, 205, 196, 0.12) 50%,
-                rgba(9, 132, 227, 0.15) 100%);
-            border: 2px solid rgba(0, 212, 255, 0.3);
-            border-radius: 24px;
-            padding: 2.5rem;
-            backdrop-filter: blur(60px) saturate(180%);
-            -webkit-backdrop-filter: blur(60px) saturate(180%);
-            box-shadow: 
-                0 20px 60px rgba(0, 212, 255, 0.2),
-                0 0 0 1px rgba(0, 212, 255, 0.15),
-                inset 0 1px 0 rgba(255, 255, 255, 0.15);
-            opacity: 0;
-            transform: scale(0.9);
-            animation: bubblePopIn 0.6s ease-out 0.8s forwards;
-            position: relative;
-        }
-
-        @keyframes bubblePopIn {
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        .speech-bubble::before {
-            content: '';
-            position: absolute;
-            left: -20px;
-            top: 60px;
-            width: 0;
-            height: 0;
-            border-top: 15px solid transparent;
-            border-bottom: 15px solid transparent;
-            border-right: 20px solid rgba(0, 212, 255, 0.3);
-            filter: blur(2px);
-        }
-
-        .speech-bubble::after {
-            content: '';
-            position: absolute;
-            left: -18px;
-            top: 60px;
-            width: 0;
-            height: 0;
-            border-top: 15px solid transparent;
-            border-bottom: 15px solid transparent;
-            border-right: 20px solid rgba(0, 212, 255, 0.15);
-        }
 
         .speech-title {
             font-size: 1.8rem;
@@ -1249,6 +1144,7 @@
             border-radius: 16px;
             border: 1px solid rgba(102, 26, 255, 0.4);
             margin-bottom: 1.5rem;
+            position: relative;
         }
 
         .promo-code {
@@ -1281,9 +1177,37 @@
             background: linear-gradient(135deg, var(--neon-teal), var(--neon-cyan));
         }
 
-        .copy-btn.copied {
-            background: rgba(42, 187, 78, 0.2);
-            border: 1px solid rgba(42, 187, 78, 0.4);
+        .copy-btn.copy-active {
+            animation: copyPulse 0.6s ease-out;
+        }
+
+        @keyframes copyPulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 200, 0.0); }
+            50% { transform: scale(1.04); box-shadow: 0 0 18px 0 rgba(0, 255, 200, 0.75); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 200, 0.0); }
+        }
+
+        .copy-toast {
+            position: absolute;
+            left: 50%;
+            top: -42px;
+            transform: translateX(-50%) translateY(10px);
+            padding: 6px 14px;
+            border-radius: 999px;
+            background: rgba(5, 20, 40, 0.9);
+            color: #e9fbff;
+            font-size: 13px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+            border: 1px solid rgba(0, 255, 200, 0.4);
+            box-shadow: 0 0 14px rgba(0, 255, 200, 0.45);
+            z-index: 20;
+        }
+
+        .copy-toast.visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
         }
 
         /* Уведомление о копировании */
@@ -1306,7 +1230,16 @@
         .copy-notification.show {
             opacity: 1;
             transform: translate(-50%, -50%) scale(1);
+            animation: notificationPop 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
+        @keyframes notificationPop {
+            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        /* Блок с примером выигрыша */
 
         .copy-notification-content {
             display: flex;
@@ -1409,25 +1342,27 @@
             top: 0;
             z-index: 1000;
             background: linear-gradient(135deg, 
-                rgba(4, 6, 22, 0.85) 0%, 
-                rgba(9, 11, 26, 0.8) 50%,
-                rgba(4, 6, 22, 0.85) 100%);
-            backdrop-filter: blur(60px) saturate(180%);
-            -webkit-backdrop-filter: blur(60px) saturate(180%);
+                rgba(4, 6, 22, 0.95) 0%, 
+                rgba(9, 11, 26, 0.9) 50%,
+                rgba(4, 6, 22, 0.95) 100%);
+            backdrop-filter: blur(25px) saturate(150%);
+            -webkit-backdrop-filter: blur(25px) saturate(150%);
             border: 2px solid rgba(0, 212, 255, 0.25);
-            border-top: none;
-            padding: 1.5rem 0;
-            margin: 0 -1.5rem 3rem;
-            padding-left: 1.5rem;
-            padding-right: 1.5rem;
-            border-radius: 0 0 48px 48px;
-            box-shadow: 
-                0 20px 60px rgba(0, 0, 0, 0.5),
-                0 0 0 1px rgba(0, 212, 255, 0.1),
-                inset 0 1px 0 rgba(255, 255, 255, 0.15),
-                inset 0 -1px 0 rgba(0, 212, 255, 0.1);
-            overflow: hidden;
-            position: relative;
+            border-radius: 24px;
+            will-change: transform;
+        }
+
+        /* Уменьшаем blur на мобильных для производительности */
+        @media (max-width: 768px) {
+            .nav-menu {
+                backdrop-filter: blur(15px) saturate(120%);
+                -webkit-backdrop-filter: blur(15px) saturate(120%);
+            }
+            
+            .speech-bubble {
+                backdrop-filter: blur(20px) saturate(150%);
+                -webkit-backdrop-filter: blur(20px) saturate(150%);
+            }
         }
 
         .nav-menu::before {
@@ -1471,6 +1406,7 @@
             flex-wrap: wrap;
             justify-content: center;
             align-items: center;
+            padding: 1rem;
         }
 
         .nav-link {
@@ -1597,8 +1533,30 @@
                 white-space: nowrap;
             }
 
+            .casino-go-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.8rem;
+            }
+
+            .win-example-block {
+                padding: 1rem;
+                margin: 1.5rem auto;
+            }
+
+            .win-example-title {
+                font-size: 1.1rem;
+            }
+
+            .win-example-text {
+                font-size: 0.9rem;
+            }
+
             .tab-icon {
-                font-size: 1rem;
+                font-size: 1.5rem;
+            }
+
+            .tab-button::before {
+                display: none; /* Убираем подсказку на мобильных */
             }
 
             /* Карточки казино - одна в столбик на мобильных */
@@ -1632,8 +1590,8 @@
 
         .tab-button {
             padding: 1rem 2rem;
-            background: rgba(9, 11, 26, 0.8);
-            border: 2px solid rgba(0, 212, 255, 0.3);
+            background: linear-gradient(135deg, rgba(9, 11, 26, 0.95), rgba(4, 6, 22, 0.95));
+            border: 2px solid rgba(0, 212, 255, 0.4);
             border-radius: 16px;
             color: var(--text-primary);
             font-size: 1rem;
@@ -1642,6 +1600,7 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 0.5rem;
             backdrop-filter: blur(10px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
@@ -1662,7 +1621,19 @@
         }
 
         .tab-icon {
-            font-size: 1.2rem;
+            font-size: 1.8rem;
+            line-height: 1;
+            filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.6));
+        }
+
+        .tab-button.active .tab-icon {
+            filter: drop-shadow(0 0 12px rgba(0, 212, 255, 0.9));
+            animation: icon-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes icon-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
 
         .tabs-content {
@@ -1711,6 +1682,42 @@
                 inset 0 -1px 0 rgba(0, 212, 255, 0.1);
             position: relative;
             overflow: hidden;
+            scroll-margin-top: 120px;
+        }
+        
+        /* Убеждаемся, что секция "Инструменты" имеет правильный отступ снизу */
+        #tools.section {
+            margin-bottom: 20rem !important;
+            padding-bottom: 8rem !important;
+            min-height: auto !important;
+        }
+        
+        /* Дополнительная защита от наложения блока поддержки */
+        #support.support-section {
+            margin-top: 20rem !important;
+            margin-bottom: 4rem !important;
+            position: relative !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            transform: none !important;
+            display: block !important;
+            visibility: visible !important;
+            min-height: auto !important;
+        }
+        
+        /* Убеждаемся, что секция "Инструменты" не перекрывает блок поддержки */
+        #tools.section + #support.support-section {
+            margin-top: 20rem !important;
+        }
+        
+        /* Дополнительная защита: убеждаемся, что между секциями есть достаточный отступ */
+        #tools.section::after {
+            content: '';
+            display: block;
+            height: 20rem;
+            width: 100%;
+            clear: both;
         }
 
         .section::after {
@@ -1881,6 +1888,8 @@
             gap: 1.5rem;
             position: relative;
             z-index: 1;
+            will-change: scroll-position;
+            contain: layout style;
         }
 
         .casino-card {
@@ -1899,20 +1908,18 @@
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
-            backdrop-filter: blur(60px) saturate(180%);
-            -webkit-backdrop-filter: blur(60px) saturate(180%);
+            backdrop-filter: blur(25px) saturate(150%);
+            -webkit-backdrop-filter: blur(25px) saturate(150%);
             opacity: 1;
-            transform: translateY(0) perspective(1000px);
-            transform-style: preserve-3d;
+            transform: translateY(0);
+            /* Упрощенные тени для лучшей производительности */
             box-shadow: 
-                0 10px 40px rgba(0, 0, 0, 0.4),
-                0 0 0 1px rgba(0, 212, 255, 0.15),
-                inset 0 1px 0 rgba(255, 255, 255, 0.12),
-                inset 0 -1px 0 rgba(0, 212, 255, 0.08);
+                0 8px 20px rgba(0, 0, 0, 0.25),
+                0 0 0 1px rgba(0, 212, 255, 0.15);
             z-index: 1;
         }
 
-        /* Эффект волн на карточке */
+        /* Эффект волн на карточке - упрощен для производительности */
         .casino-card::before {
             content: '';
             position: absolute;
@@ -1920,14 +1927,23 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
-            animation: cardWave 6s ease-in-out infinite;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.08) 0%, transparent 70%);
+            animation: cardWave 8s ease-in-out infinite;
             pointer-events: none;
+            will-change: transform, opacity;
         }
 
         @keyframes cardWave {
-            0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 0.3; }
-            50% { transform: translate(20px, 20px) scale(1.1) rotate(180deg); opacity: 0.6; }
+            0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.2; }
+            50% { transform: translate3d(5px, 5px, 0); opacity: 0.3; }
+        }
+
+        /* Отключаем анимацию на мобильных для производительности */
+        @media (max-width: 768px) {
+            .casino-card::before {
+                animation: none;
+                opacity: 0.1;
+            }
         }
 
         .casino-card.visible {
@@ -1935,7 +1951,7 @@
             transform: translateY(0);
         }
 
-        /* Блеск при наведении */
+        /* Блеск при наведении - упрощен */
         .casino-card::after {
             content: '';
             position: absolute;
@@ -1945,25 +1961,58 @@
             height: 200%;
             background: linear-gradient(45deg, 
                 transparent 30%, 
-                rgba(255, 255, 255, 0.1) 50%, 
+                rgba(255, 255, 255, 0.08) 50%, 
                 transparent 70%);
             transform: translateX(-100%) translateY(-100%) rotate(45deg);
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.4s ease;
             pointer-events: none;
+            will-change: transform;
         }
 
         .casino-card:hover::after {
             transform: translateX(100%) translateY(100%) rotate(45deg);
         }
 
+        /* Отключаем на мобильных тяжелые эффекты */
+        @media (max-width: 768px) {
+            .casino-card::after {
+                display: none;
+            }
+            
+            .casino-card {
+                backdrop-filter: blur(15px) saturate(120%);
+                -webkit-backdrop-filter: blur(15px) saturate(120%);
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            }
+            
+            .speech-bubble {
+                backdrop-filter: blur(15px) saturate(120%);
+                -webkit-backdrop-filter: blur(15px) saturate(120%);
+            }
+            
+            /* Отключаем анимации фоновых волн */
+            .bubbles {
+                animation: none;
+            }
+            
+            /* Упрощаем glow-эффекты */
+            .casino-card:hover {
+                box-shadow: 0 6px 20px rgba(0, 212, 255, 0.2);
+            }
+        }
+
+        .casino-card {
+            will-change: transform;
+            contain: layout style paint;
+        }
+
         .casino-card:hover {
-            transform: translateY(-12px) perspective(1000px) rotateX(3deg) rotateY(-3deg) scale(1.03);
+            transform: translate3d(0, -6px, 0);
             border-color: rgba(0, 212, 255, 0.5);
+            /* Упрощенные тени для лучшей производительности */
             box-shadow: 
-                0 25px 60px rgba(0, 212, 255, 0.35),
-                0 0 50px rgba(78, 205, 196, 0.3),
-                inset 0 0 30px rgba(0, 212, 255, 0.15),
-                0 0 0 2px rgba(0, 212, 255, 0.2);
+                0 12px 30px rgba(0, 212, 255, 0.25),
+                0 0 25px rgba(78, 205, 196, 0.2);
             background: linear-gradient(135deg, 
                 rgba(15, 18, 35, 0.95) 0%, 
                 rgba(20, 25, 45, 0.92) 50%,
@@ -2014,60 +2063,128 @@
             margin-bottom: 0.75rem;
         }
 
-        .badge {
-            display: inline-block;
-            padding: 0.35rem 0.75rem;
-            border-radius: 8px;
-            font-size: 0.75rem;
+        /* Единый стиль для всех тегов */
+        .badge,
+        .casino-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            line-height: 1.2;
             font-weight: 600;
-            line-height: 1;
+            transition: all 0.3s ease;
         }
 
-        .badge-royal {
-            background: rgba(102, 26, 255, 0.2);
-            border: 1px solid rgba(102, 26, 255, 0.4);
-            color: var(--neon-purple-light);
+        .badge:hover,
+        .casino-tag:hover {
+            transform: translateY(-1px);
+            opacity: 0.9;
         }
 
-        .badge-crypto {
-            background: rgba(255, 140, 55, 0.2);
-            border: 1px solid rgba(255, 140, 55, 0.4);
-            color: #FF8C37;
+        /* Модификаторы цветов для тегов */
+        .badge-royal,
+        .tag-royal {
+            background: rgba(102, 26, 255, 0.16);
+            border: 1px solid rgba(102, 26, 255, 0.45);
+            color: #b794f6;
         }
 
-        .badge-crash {
-            background: rgba(236, 72, 153, 0.2);
-            border: 1px solid rgba(236, 72, 153, 0.4);
-            color: var(--neon-pink);
+        .badge-crypto,
+        .tag-crypto {
+            background: rgba(255, 140, 55, 0.16);
+            border: 1px solid rgba(255, 140, 55, 0.45);
+            color: #ffb366;
         }
 
-        .badge-freespins {
-            background: rgba(0, 212, 255, 0.2);
-            border: 1px solid rgba(0, 212, 255, 0.4);
-            color: var(--neon-blue);
+        .badge-crash,
+        .tag-crash {
+            background: rgba(236, 72, 153, 0.16);
+            border: 1px solid rgba(236, 72, 153, 0.45);
+            color: #f687b3;
         }
 
-        .badge-top-partner {
-            background: rgba(255, 215, 0, 0.2);
-            border: 1px solid rgba(255, 215, 0, 0.5);
-            color: #FFD700;
+        .badge-freespins,
+        .tag-freespins {
+            background: rgba(0, 212, 255, 0.16);
+            border: 1px solid rgba(0, 212, 255, 0.45);
+            color: #7dd3fc;
+        }
+
+        .badge-top-partner,
+        .tag-top-partner {
+            background: rgba(255, 215, 0, 0.16);
+            border: 1px solid rgba(255, 215, 0, 0.45);
+            color: #fde047;
             font-weight: 700;
         }
 
-        .badge-rtp {
-            background: rgba(0, 255, 127, 0.2);
-            border: 1px solid rgba(0, 255, 127, 0.4);
-            color: #00FF7F;
+        .badge-rtp,
+        .tag-rtp {
+            background: rgba(0, 255, 127, 0.16);
+            border: 1px solid rgba(0, 255, 127, 0.45);
+            color: #86efac;
         }
 
         .casino-card-name {
             font-size: 1.4rem;
-            font-weight: 600;
+            font-weight: 700;
             margin-bottom: 0.5rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
             line-height: 1.3;
+        }
+
+        .casino-card-name span:first-child,
+        .casino-card-name .casino-name-text {
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue), var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        /* Цветные названия для разных категорий казино */
+        .casino-card[data-name*="beef"] .casino-card-name span:first-child,
+        .casino-card[data-name*="beef"] .casino-card-name .casino-name-text,
+        .casino-card[data-name*="martin"] .casino-card-name span:first-child,
+        .casino-card[data-name*="martin"] .casino-card-name .casino-name-text {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53, #ffa500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .casino-card[data-name*="flagman"] .casino-card-name span:first-child,
+        .casino-card[data-name*="flagman"] .casino-card-name .casino-name-text,
+        .casino-card[data-name*="irwin"] .casino-card-name span:first-child,
+        .casino-card[data-name*="irwin"] .casino-card-name .casino-name-text {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .casino-card[data-name*="gizbo"] .casino-card-name span:first-child,
+        .casino-card[data-name*="gizbo"] .casino-card-name .casino-name-text,
+        .casino-card[data-name*="lex"] .casino-card-name span:first-child,
+        .casino-card[data-name*="lex"] .casino-card-name .casino-name-text {
+            background: linear-gradient(135deg, #a29bfe, #6c5ce7, #fd79a8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .casino-card[data-name*="vavada"] .casino-card-name span:first-child,
+        .casino-card[data-name*="vavada"] .casino-card-name .casino-name-text {
+            background: linear-gradient(135deg, #00ff7f, #00ffaa, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .casino-card[data-name*="dragonmoney"] .casino-card-name span:first-child,
+        .casino-card[data-name*="dragonmoney"] .casino-card-name .casino-name-text {
+            background: linear-gradient(135deg, #ff7675, #fd79a8, #fdcb6e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .casino-card-desc {
@@ -2078,15 +2195,46 @@
         }
 
         .casino-arrow {
-            font-size: 1.3rem;
-            opacity: 0.5;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            margin-left: auto;
+            display: none;
         }
 
-        .casino-card:hover .casino-arrow {
-            opacity: 1;
-            transform: translateX(8px);
+        .casino-go-btn {
+            margin-left: auto;
+            padding: 0.6rem 1.2rem;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.25), rgba(78, 205, 196, 0.25));
+            border: 2px solid rgba(0, 212, 255, 0.6);
+            border-radius: 12px;
+            color: var(--neon-cyan);
+            font-size: 0.9rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
+            box-shadow: 0 2px 10px rgba(0, 212, 255, 0.25);
+            white-space: nowrap;
+        }
+
+        .casino-go-arrow {
+            font-size: 1.2rem;
+            font-weight: 800;
+            transition: transform 0.3s ease;
+            display: inline-block;
+            margin-left: 0.3rem;
+        }
+
+        .casino-card:hover .casino-go-btn {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.4), rgba(78, 205, 196, 0.4));
+            border-color: rgba(0, 212, 255, 0.9);
+            transform: translateX(3px);
+            box-shadow: 0 4px 18px rgba(0, 212, 255, 0.4);
+            color: var(--neon-blue);
+        }
+
+        .casino-card:hover .casino-go-arrow {
+            transform: translateX(3px);
         }
 
         /* Блок поддержки */
@@ -2096,9 +2244,25 @@
             border-radius: 20px;
             padding: 2rem;
             text-align: center;
-            margin-bottom: 3rem;
+            margin-top: 20rem !important;
+            margin-bottom: 4rem !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            max-width: 100% !important;
             backdrop-filter: blur(46px);
             box-shadow: 0 0 30px rgba(255, 193, 7, 0.3);
+            position: relative !important;
+            z-index: 0 !important;
+            clear: both !important;
+            scroll-margin-top: 140px;
+            top: auto !important;
+            bottom: auto !important;
+            left: auto !important;
+            right: auto !important;
+            display: block !important;
+            visibility: visible !important;
+            float: none !important;
+            min-height: auto !important;
         }
 
         .support-section .warning-icon {
@@ -2462,36 +2626,24 @@
         }
 
         /* Статистика в реальном времени */
-        .stats-section {
-            background: linear-gradient(135deg, rgba(102, 26, 255, 0.1), rgba(157, 78, 255, 0.1));
-            border: 1px solid rgba(102, 26, 255, 0.3);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            display: flex;
-            gap: 2rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
 
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            line-height: 1.2;
+        @keyframes pulse-glow {
+            0%, 100% { 
+                filter: brightness(1);
+                transform: scale(1);
+            }
+            50% { 
+                filter: brightness(1.2);
+                transform: scale(1.05);
+            }
         }
 
         .stat-label {
-            font-size: 0.9rem;
+            font-size: 1rem;
             color: var(--text-secondary);
             margin-top: 0.5rem;
+            font-weight: 500;
+            opacity: 0.9;
         }
 
         /* Tooltips */
@@ -2536,46 +2688,41 @@
             transform: translateX(-50%) translateY(0);
         }
 
-        /* Социальное доказательство */
-        .social-proof {
+        /* Тост "Новый выигрыш!" */
+        .win-toast {
             position: fixed;
-            bottom: 160px;
-            right: 16px;
-            background: linear-gradient(135deg, rgba(9, 11, 26, 0.98), rgba(15, 18, 35, 0.98));
-            backdrop-filter: blur(46px);
-            border: 1px solid rgba(102, 26, 255, 0.3);
-            border-radius: 12px;
-            padding: 1rem;
-            max-width: 280px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            left: 20px;
+            bottom: 20px;
+            max-width: 320px;
+            padding: 10px 14px;
+            border-radius: 16px;
+            background: rgba(10, 12, 36, 0.96);
+            border: 1px solid rgba(120, 90, 255, 0.6);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            color: #f5f0ff;
+            font-size: 13px;
             opacity: 0;
-            transform: translateX(400px);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 997;
+            transform: translateX(-20px);
+            pointer-events: none;
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+            z-index: 40;
         }
 
-        .social-proof.show {
+        .win-toast.visible {
             opacity: 1;
             transform: translateX(0);
         }
 
-        .social-proof-header {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
+        .win-toast-icon {
+            font-size: 16px;
+            margin-top: 2px;
         }
 
-        .social-proof-text {
-            font-size: 0.95rem;
-            color: var(--text-primary);
-            line-height: 1.4;
-        }
-
-        .social-proof-text strong {
-            color: var(--neon-purple-light);
+        .win-toast-text b {
+            color: #ffd86b;
         }
 
         /* Chatbot */
@@ -2590,14 +2737,20 @@
             border: 1px solid rgba(102, 26, 255, 0.3);
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            z-index: 999;
+            z-index: 10003;
             display: none;
             flex-direction: column;
             overflow: hidden;
+            opacity: 0;
+            transform: scale(0.9) translateY(20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            pointer-events: auto;
         }
 
         .chatbot.open {
-            display: flex;
+            display: flex !important;
+            opacity: 1;
+            transform: scale(1) translateY(0);
         }
 
         .chatbot-header {
@@ -2633,6 +2786,42 @@
         .chatbot-close:hover {
             background: rgba(102, 26, 255, 0.1);
             color: var(--text-primary);
+        }
+
+        /* Виртуальный ассистент в hero-блоке */
+        .speech-bubble .chatbot-messages {
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 1rem;
+            margin: 1rem 0;
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .chat-message {
+            padding: 0.6rem 0.9rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.25);
+            color: var(--text-primary);
+            animation: messageFadeIn 0.3s ease-out;
+        }
+
+        @keyframes messageFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .chatbot-messages {
@@ -2709,39 +2898,62 @@
             position: fixed;
             bottom: 20px;
             left: 20px;
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--neon-purple), var(--neon-purple-light));
-            border: none;
+            border: 3px solid rgba(255, 255, 255, 0.2);
             cursor: pointer;
-            box-shadow: 0 4px 20px rgba(102, 26, 255, 0.4);
+            box-shadow: 0 6px 25px rgba(102, 26, 255, 0.5), 0 0 30px rgba(102, 26, 255, 0.3);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
-            z-index: 998;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            font-size: 2rem;
+            z-index: 10002;
+            transition: all 0.3s ease;
             will-change: transform;
-            touch-action: manipulation; /* Улучшает отзывчивость на мобильных */
+            touch-action: manipulation;
+            animation: chatbot-pulse 2s ease-in-out infinite;
+            pointer-events: auto;
+        }
+
+        @keyframes chatbot-pulse {
+            0%, 100% {
+                box-shadow: 0 6px 25px rgba(102, 26, 255, 0.5), 0 0 30px rgba(102, 26, 255, 0.3);
+            }
+            50% {
+                box-shadow: 0 8px 35px rgba(102, 26, 255, 0.7), 0 0 50px rgba(102, 26, 255, 0.5);
+            }
         }
 
         .chatbot-toggle:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 30px rgba(102, 26, 255, 0.6);
+            transform: scale(1.15);
+            box-shadow: 0 10px 40px rgba(102, 26, 255, 0.8), 0 0 60px rgba(102, 26, 255, 0.6);
+            animation: none;
+        }
+
+        .chatbot-toggle:active {
+            transform: scale(1.05);
         }
 
         @media (max-width: 414px) {
             .chatbot-toggle {
-                width: 52px;
-                height: 52px;
+                width: 60px;
+                height: 60px;
                 bottom: 16px;
                 left: 16px;
-                font-size: 1.3rem;
+                font-size: 1.8rem;
+            }
+
+            .casino-arrow {
+                font-size: 1.6rem;
             }
         }
 
         .chatbot-toggle.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0);
             display: none;
         }
 
@@ -2835,9 +3047,9 @@
                 right: 20px;
             }
 
-            .stats-section {
-                flex-direction: column;
-                gap: 1rem;
+
+            .stat-label {
+                font-size: 0.95rem;
             }
         }
 
@@ -2882,6 +3094,12 @@
             .section {
                 padding: 2rem 1.5rem;
                 margin-bottom: 3rem;
+            }
+            
+            .support-section {
+                margin-top: 6rem !important;
+                margin-bottom: 2rem !important;
+                padding: 1.5rem;
             }
 
             .section-title {
@@ -2977,9 +3195,30 @@
                 padding: 1.5rem 1rem;
                 margin-bottom: 2rem;
             }
+            
+            .support-section {
+                margin-top: 6rem !important;
+                margin-bottom: 2rem !important;
+                padding: 1.5rem;
+                scroll-margin-top: 100px;
+            }
 
             .section-title {
                 font-size: 1.4rem;
+            }
+
+            .stat-value {
+                font-size: 2rem;
+            }
+
+            .tab-button {
+                padding: 0.9rem 1.2rem;
+                font-size: 0.95rem;
+                min-width: 100px;
+            }
+
+            .tab-icon {
+                font-size: 1.3rem;
             }
 
             /* Оптимизация blur эффектов для мобильных (уменьшаем для производительности) */
@@ -3102,33 +3341,7 @@
     <!-- Основной контент -->
     <div class="container">
         <!-- Hero-блок с говорящим рыбаком -->
-        <section class="profile-section" id="profileSection">
-            <div class="fisherman-character"></div>
-            <div class="speech-bubble">
-                <h2 class="speech-title">Привет! Ты попал на сайт с топовыми онлайн‑казино</h2>
-                <div class="speech-text">
-                    <p><strong>Зачем этот сайт?</strong> Подборка проверенных казино с промокодом LUDKA и лучшими бонусами.</p>
-                    <p><strong>Как пользоваться?</strong> Выбери казино ниже, введи промокод и забери бонус.</p>
-                    <p><strong>Подсказка:</strong> Если сомневаешься — начни с TOP‑блока, там самые жирные бонусы.</p>
-                </div>
-                <div class="speech-buttons">
-                    <a href="#top-royal" class="speech-btn" id="showTopCasinos">Показать топ казино</a>
-                    <button class="speech-btn secondary" id="howToChooseBtn">Как выбрать казино?</button>
-                </div>
-            </div>
-        </section>
 
-        <!-- Статистика в реальном времени -->
-        <div class="stats-section" id="statsSection">
-            <div class="stat-item">
-                <div class="stat-value" id="todayRegistrations">126</div>
-                <div class="stat-label">Сегодня зарегистрировалось</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value" id="activePlayers">341</div>
-                <div class="stat-label">Активных игроков онлайн</div>
-            </div>
-        </div>
 
         <!-- CTA блок с промокодом -->
         <div class="promo-cta" id="promoCta">
@@ -3138,7 +3351,10 @@
             </div>
             <div class="promo-code-block">
                 <span class="promo-code">LUDKA</span>
-                <button class="copy-btn" id="copyPromoBtn">Скопировать промокод</button>
+                <button id="copyPromoBtn" class="copy-btn">
+                    Скопировать промокод
+                </button>
+                <div class="copy-toast" id="copyToast">Промокод LUDKA скопирован</div>
             </div>
         </div>
 
@@ -3149,6 +3365,7 @@
                 <span>Промокод скопирован!</span>
             </div>
         </div>
+
 
         <!-- Дисклеймер - вверху сайта -->
         <div class="container">
@@ -3184,7 +3401,7 @@
 
         <!-- Хлебные крошки -->
         <nav class="breadcrumbs" id="breadcrumbs">
-            <a href="#profileSection">Главная</a>
+            <a href="#top-royal">Главная</a>
             <span>/</span>
             <span id="breadcrumbCurrent">Выберите раздел</span>
         </nav>
@@ -3217,7 +3434,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>Beef Casino</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Мощный старт для любителей слотов: до крупного welcome-пакета и фриспины по промокоду LUDKA, плюс быстрые выплаты без лишней бюрократии.
@@ -3240,7 +3459,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>Martin Casino</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Много турниров и движухи, для тех, кому важен соревновательный азарт: большое приветствие, кэшбэк и постоянные акции для активных игроков.
@@ -3263,7 +3484,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>Flagman Casino</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Вариант "для основного банка": высокая линейка бонусов, расширенные лимиты на вывод и регулярный кэшбэк для тех, кто крутит часто.
@@ -3286,7 +3509,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>IRWIN Casino</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Больше про стабильность: бренд давно на рынке, упор на надежность выплат и понятные условия бонусов + фриспины по LUDKA.
@@ -3309,7 +3534,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>GIZBO Casino</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Обширная коллекция слотов и лайв-столов от топовых провайдеров, приветственный бонус и повышенный кешбэк для VIP-игроков.
@@ -3332,7 +3559,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>LEX Casino</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Частые турниры и квесты с крупными призами, щедрый welcome-пакет и система лояльности для постоянных клиентов.
@@ -3355,7 +3584,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>1GO Casino</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Лицензированное казино с прозрачными условиями и щедрой программой поощрений для всех категорий игроков, включая новичков.
@@ -3378,7 +3609,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>LEGZO Casino</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Платформа с современным интерфейсом и широким ассортиментом развлечений, включая live-дилеров и эксклюзивные слоты.
@@ -3401,7 +3634,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>VOLNA Casino</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Выгодные условия для новых игроков и регулярные бонусные предложения для постоянных клиентов с повышенным кешбэком.
@@ -3424,7 +3659,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>DRIP Casino</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Игровая площадка с быстрой регистрацией и мгновенными выплатами, а также эксклюзивными бонусами для активных игроков.
@@ -3447,7 +3684,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>MONRO Casino</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Надежное казино с лицензией и разнообразными игровыми опциями, включая классические и современные слоты с высоким RTP.
@@ -3470,7 +3709,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>ROX Casino</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Популярная платформа с приветственным пакетом бонусов и системой кэшбэка для активных игроков, плюс регулярные акции.
@@ -3493,7 +3734,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>JET Casino</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Современное казино с обширной коллекцией игр и специальными предложениями для новых пользователей с увеличенным welcome-бонусом.
@@ -3516,7 +3759,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>FRESH Casino</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Игровой портал с быстрыми выплатами и щедрыми бонусами, включая фриспины и кэшбэк на депозиты для постоянных клиентов.
@@ -3539,7 +3784,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>SOL Casino</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Лицензированное казино с прозрачными условиями игры и привлекательными бонусными программами для всех уровней игроков.
@@ -3562,7 +3809,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>IZZI Casino</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Платформа с широким выбором игр от топовых провайдеров и выгодными условиями для постоянных игроков с VIP-статусами.
@@ -3585,7 +3834,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>STARDA Casino</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Казино с современным дизайном и обширной библиотекой слотов, а также регулярными турнирами и акциями с крупными призами.
@@ -3612,7 +3863,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>Gama Casino</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Надежная игровая площадка с лицензией и широким ассортиментом слотов от известных разработчиков, плюс быстрые выводы.
@@ -3630,7 +3883,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>Daddy Casino</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Популярное казино с современным интерфейсом и привлекательными бонусными программами для новых и постоянных игроков.
@@ -3648,7 +3903,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>Cat Casino</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Милый стиль, но серьёзные призы: уникальные предложения и регулярные акции, включая турниры с крупными джекпотами.
@@ -3666,7 +3923,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>Kometa Casino</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Современное казино с быстрыми выплатами и обширной коллекцией игр от ведущих провайдеров, удобный мобильный клиент.
@@ -3684,7 +3943,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>Kent Casino</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Надежная игровая площадка с лицензией и выгодными условиями для новых и постоянных игроков, прозрачные условия.
@@ -3702,7 +3963,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>R7 Casino</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Игровой портал с широким выбором развлечений и специальными предложениями для новых игроков с увеличенным бонусом.
@@ -3730,7 +3993,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>Dragonmoney</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Формат краш и кейсы, быстрый движ и возможность "залететь с промика BUPCF на мини-депозите" для любителей адреналина.
@@ -3748,7 +4013,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>Atom Casino</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Современный интерфейс, быстрые выплаты, щедрый welcome и удобно с телефона — идеально для мобильных игроков.
@@ -3766,7 +4033,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>Sykaaa Casino</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Быстрые выплаты без задержек, щедрый приветственный бонус и удобный мобильный интерфейс для игры на ходу.
@@ -3784,7 +4053,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>UNLIM Casino</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Казино с безлимитными возможностями для игры и щедрыми бонусами на каждый депозит без ограничений по времени.
@@ -3804,7 +4075,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>CRYPTOboss Casino</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Платформа с поддержкой криптовалют и специальными предложениями для пользователей цифровых активов, крупный welcome.
@@ -3822,7 +4095,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>Arkada Casino</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Казино с приветственным пакетом бонусов и регулярными акциями для активных пользователей, включая турниры.
@@ -3840,7 +4115,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>Casino Kilogram</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Казино с уникальной системой бонусов и регулярными турнирами для всех категорий игроков, крупные розыгрыши.
@@ -3858,7 +4135,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>VAVADA</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Популярная платформа с лицензией и щедрыми бонусными программами для новых и постоянных клиентов, колесо фортуны.
@@ -3876,7 +4155,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>1Win</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Многофункциональная платформа с казино и ставками на спорт, предлагающая выгодные бонусы и акции, мобильный клиент без лагов.
@@ -3900,7 +4181,9 @@
                     <div class="casino-info">
                         <div class="casino-card-name">
                             <span>Мой kick</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Смотрите прямые трансляции и общайтесь с сообществом на платформе KICK, получайте эксклюзивные обновления и новости.
@@ -3915,7 +4198,9 @@
                     <div class="casino-info">
                         <div class="casino-card-name">
                             <span>Telegram канал/чат</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Присоединяйтесь к нашему лудочату для обновлений, общения и получения актуальной информации о бонусах.
@@ -3930,7 +4215,9 @@
                     <div class="casino-info">
                         <div class="casino-card-name">
                             <span>Мой лс для рекламы и сотрудничества</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Свяжитесь для вопросов по рекламе и сотрудничеству, получите персональную консультацию.
@@ -3954,7 +4241,9 @@
                     <div class="casino-info">
                         <div class="casino-card-name">
                             <span>TMG VPN</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Надежный VPN-сервис через Telegram-бота для безопасного и анонимного интернет-соединения, быстрая настройка за минуту.
@@ -3976,7 +4265,9 @@
                         </div>
                         <div class="casino-card-name">
                             <span>Antarctic Wallet</span>
-                            <span class="casino-arrow">→</span>
+                            <button class="casino-go-btn" type="button">
+                                Перейти <span class="casino-go-arrow">→</span>
+                            </button>
                         </div>
                         <p class="casino-card-desc">
                             Безопасный криптовалютный кошелек в Telegram для хранения и управления цифровыми активами, удобный интерфейс и быстрые переводы. Лучший способ для безопасной оплаты в казино.
@@ -4001,14 +4292,11 @@
     <!-- Кнопка "Наверх" -->
     <button class="scroll-to-top" id="scrollToTop" title="Наверх">↑</button>
 
-    <!-- Социальное доказательство -->
-    <div class="social-proof" id="socialProof">
-        <div class="social-proof-header">
-            <span>🎉</span>
-            <span>Новый выигрыш!</span>
-        </div>
-        <div class="social-proof-text" id="socialProofText">
-            <strong>Иван</strong> только что получил бонус <strong>5000₽</strong> в <strong>Beef Casino</strong>
+    <!-- Тост "Новый выигрыш!" -->
+    <div class="win-toast" id="winToast">
+        <div class="win-toast-icon">🎉</div>
+        <div class="win-toast-text" id="winToastText">
+            Новый выигрыш! Ольга только что получила бонус 5000₽ в Martin Casino
         </div>
     </div>
 
@@ -4119,7 +4407,6 @@
 
         // Наблюдаем за всеми элементами
         const elementsToObserve = [
-            document.getElementById('profileSection'),
             document.getElementById('promoCta'),
             document.getElementById('top-royal'),
             document.getElementById('cat-casinos'),
@@ -4262,8 +4549,9 @@
                     const navMenu = document.querySelector('.nav-menu');
                     const navHeight = navMenu ? navMenu.offsetHeight : 80;
                     const sectionTop = targetSection.offsetTop - navHeight - 20;
+                    const finalScrollTop = Math.max(0, sectionTop);
                     window.scrollTo({
-                        top: sectionTop,
+                        top: finalScrollTop,
                         behavior: 'smooth'
                     });
                 }
@@ -4299,12 +4587,13 @@
             }
         });
 
-        // Устанавливаем активным фильтр "Все" по умолчанию
-        if (filterBtns.length > 0) {
+        // Устанавливаем активным фильтр "Все" по умолчанию (если фильтры есть)
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        if (filterBtns && filterBtns.length > 0) {
             filterBtns[0].classList.add('active');
         }
 
-        // Вызываем фильтрацию при загрузке страницы
+        // Вызываем фильтрацию при загрузке страницы (если функция существует)
         // Убеждаемся, что все карточки видны по умолчанию
         window.addEventListener('load', () => {
             setTimeout(() => {
@@ -4313,7 +4602,9 @@
                         card.style.display = 'flex';
                     }
                 });
-                filterCasinos();
+                if (typeof filterCasinos === 'function') {
+                    filterCasinos();
+                }
             }, 100);
         });
 
@@ -4331,26 +4622,35 @@
             }
         }
 
-        // 6. Улучшенная анимация копирования промокода
-        const copyPromoBtn = document.getElementById('copyPromoBtn');
-        const copyNotification = document.getElementById('copyNotification');
-        if (copyPromoBtn && copyNotification) {
-            copyPromoBtn.addEventListener('click', () => {
-                const promoCode = 'LUDKA';
-                navigator.clipboard.writeText(promoCode).then(() => {
-                    // Показываем уведомление
-                    copyNotification.classList.add('show');
-                    copyPromoBtn.textContent = 'Скопировано!';
-                    copyPromoBtn.classList.add('copied');
-                    
-                    setTimeout(() => {
-                        copyNotification.classList.remove('show');
-                        copyPromoBtn.textContent = 'Скопировать промокод';
-                        copyPromoBtn.classList.remove('copied');
-                    }, 2000);
-                });
+        // 6. Анимация копирования промокода
+        (function() {
+            const promoCode = "LUDKA";
+            const copyBtn = document.getElementById("copyPromoBtn");
+            const toast = document.getElementById("copyToast");
+
+            if (!copyBtn || !toast) return;
+
+            function showCopyToast(message) {
+                toast.textContent = message;
+                toast.classList.remove("visible");
+                // перезапуск transition
+                void toast.offsetWidth;
+                toast.classList.add("visible");
+                setTimeout(() => {
+                    toast.classList.remove("visible");
+                }, 1800);
+            }
+
+            copyBtn.addEventListener("click", function() {
+                try {
+                    navigator.clipboard && navigator.clipboard.writeText(promoCode);
+                } catch (e) {}
+                copyBtn.classList.remove("copy-active");
+                void copyBtn.offsetWidth;
+                copyBtn.classList.add("copy-active");
+                showCopyToast("Промокод LUDKA скопирован");
             });
-        }
+        })();
 
         // 7. Хлебные крошки
         const breadcrumbs = document.getElementById('breadcrumbs');
@@ -4445,144 +4745,47 @@
 
         // ========== НОВЫЕ ФУНКЦИИ ==========
 
-        // 11. Статистика в реальном времени с постоянной анимацией роста
-        const todayRegistrations = document.getElementById('todayRegistrations');
-        const activePlayers = document.getElementById('activePlayers');
-
-        // Базовые значения (стартовые)
-        let currentRegistrations = 126;
-        let currentActivePlayers = 341;
-
-        // Функция для плавного увеличения числа
-        function incrementCounter(element, currentValue, increment, maxValue) {
-            if (!element) return currentValue;
-            
-            const newValue = currentValue + increment;
-            const finalValue = Math.min(newValue, maxValue);
-            
-            // Плавная анимация изменения числа
-            const startValue = currentValue;
-            const endValue = finalValue;
-            const duration = 1000; // 1 секунда на изменение
-            const startTime = performance.now();
-            
-            function animate(currentTime) {
-                const elapsed = currentTime - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                
-                // Easing функция
-                const easeOutCubic = 1 - Math.pow(1 - progress, 3);
-                const currentDisplay = Math.floor(startValue + (endValue - startValue) * easeOutCubic);
-                
-                element.textContent = currentDisplay;
-                
-                if (progress < 1) {
-                    requestAnimationFrame(animate);
-                } else {
-                    element.textContent = finalValue;
-                }
-            }
-            
-            requestAnimationFrame(animate);
-            return finalValue;
-        }
-
-        // Инициализация счётчиков
-        function initCounters() {
-            if (todayRegistrations) {
-                todayRegistrations.textContent = currentRegistrations;
-            }
-            if (activePlayers) {
-                activePlayers.textContent = currentActivePlayers;
-            }
-        }
-
-        // Постоянное увеличение счётчиков (оптимизировано - один setInterval вместо двух)
-        let registrationsTimer = null;
-        let playersTimer = null;
-        
-        function startContinuousGrowth() {
-            // Очищаем предыдущие таймеры если есть
-            if (registrationsTimer) clearTimeout(registrationsTimer);
-            if (playersTimer) clearTimeout(playersTimer);
-            
-            function scheduleRegistrations() {
-                if (Math.random() > 0.3) { // 70% вероятность увеличения
-                    const increment = Math.floor(Math.random() * 3) + 1;
-                    currentRegistrations = incrementCounter(todayRegistrations, currentRegistrations, increment, 9999);
-                }
-                registrationsTimer = setTimeout(scheduleRegistrations, 3000 + Math.random() * 5000);
-            }
-            
-            function schedulePlayers() {
-                if (Math.random() > 0.2) { // 80% вероятность увеличения
-                    const increment = Math.floor(Math.random() * 5) + 1;
-                    currentActivePlayers = incrementCounter(activePlayers, currentActivePlayers, increment, 9999);
-                }
-                playersTimer = setTimeout(schedulePlayers, 2000 + Math.random() * 4000);
-            }
-            
-            scheduleRegistrations();
-            schedulePlayers();
-        }
-
-        // Запуск при появлении блока статистики
-        const statsSection = document.getElementById('statsSection');
-        if (statsSection) {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        initCounters();
-                        startContinuousGrowth();
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.5 });
-            
-            observer.observe(statsSection);
-        } else {
-            // Если блок уже виден, запускаем сразу
-            initCounters();
-            startContinuousGrowth();
-        }
 
         // 12. Tooltips уже добавлены в CSS
 
-        // 20. Социальное доказательство
-        const socialProof = document.getElementById('socialProof');
-        const socialProofText = document.getElementById('socialProofText');
-        
-        const names = ['Иван', 'Мария', 'Алексей', 'Елена', 'Дмитрий', 'Анна', 'Сергей', 'Ольга'];
-        const casinos = ['Beef Casino', 'Martin Casino', 'Flagman Casino', 'IRWIN Casino', 'GIZBO Casino', 'LEX Casino', '1GO Casino'];
-        const bonuses = ['5000₽', '3000₽', '7500₽', '2000₽', '10000₽', '4500₽', '6000₽'];
+        // 20. Тост "Новый выигрыш!"
+        (function() {
+            const toast = document.getElementById("winToast");
+            const textEl = document.getElementById("winToastText");
+            if (!toast || !textEl) return;
 
-        function showSocialProof() {
-            if (!socialProof || !socialProofText) return;
-            
-            const name = names[Math.floor(Math.random() * names.length)];
-            const casino = casinos[Math.floor(Math.random() * casinos.length)];
-            const bonus = bonuses[Math.floor(Math.random() * bonuses.length)];
-            
-            socialProofText.innerHTML = `<strong>${name}</strong> только что получил бонус <strong>${bonus}</strong> в <strong>${casino}</strong>`;
-            
-            socialProof.classList.add('show');
-            
-            setTimeout(() => {
-                socialProof.classList.remove('show');
-            }, 5000);
-        }
+            const entries = [
+                { name: "Ольга", sum: "5000₽", casino: "Martin Casino" },
+                { name: "Дима", sum: "3200₽", casino: "Beef Casino" },
+                { name: "Игорь", sum: "7400₽", casino: "Catts Casino" },
+                { name: "Анна", sum: "9800₽", casino: "Vavada" },
+                { name: "Сергей", sum: "4500₽", casino: "Dragonmoney" }
+            ];
 
-        // Показываем уведомление каждые 15-25 секунд
-        function scheduleNextProof() {
-            const delay = 15000 + Math.random() * 10000;
-            setTimeout(() => {
-                showSocialProof();
-                scheduleNextProof();
-            }, delay);
-        }
-        scheduleNextProof();
+            function showRandomWin() {
+                const item = entries[Math.floor(Math.random() * entries.length)];
+                textEl.innerHTML =
+                    `Новый выигрыш! <b>${item.name}</b> только что получил бонус ` +
+                    `<b>${item.sum}</b> в <b>${item.casino}</b>`;
+                toast.classList.add("visible");
+                setTimeout(() => toast.classList.remove("visible"), 4500);
+            }
 
-        // 33. Виртуальный помощник (Chatbot)
+            function loop() {
+                const delay = 20000 + Math.random() * 20000; // 20–40 сек
+                setTimeout(() => {
+                    showRandomWin();
+                    loop();
+                }, delay);
+            }
+
+            window.addEventListener("load", () => {
+                setTimeout(loop, 8000);
+            });
+        })();
+
+
+        // 34. Виртуальный помощник (Chatbot) - боковая панель
         function initChatbot() {
             const chatbotToggle = document.getElementById('chatbotToggle');
             const chatbot = document.getElementById('chatbot');
@@ -4591,9 +4794,7 @@
             const chatbotSend = document.getElementById('chatbotSend');
             const chatbotMessages = document.getElementById('chatbotMessages');
 
-            // Проверяем, что все элементы найдены
             if (!chatbotToggle || !chatbot || !chatbotClose || !chatbotInput || !chatbotSend || !chatbotMessages) {
-                // Chatbot elements not found - silently fail
                 return;
             }
 
@@ -4609,23 +4810,20 @@
             };
 
             function addChatbotMessage(text, isUser = false) {
-                if (!chatbotMessages) return;
                 const message = document.createElement('div');
                 message.className = `chatbot-message ${isUser ? 'user' : 'bot'}`;
-                message.innerHTML = text; // Используем innerHTML для поддержки HTML
+                message.innerHTML = text;
                 chatbotMessages.appendChild(message);
                 chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
             }
 
             function handleChatbotMessage() {
-                if (!chatbotInput || !chatbotMessages) return;
                 const message = chatbotInput.value.trim().toLowerCase();
                 if (!message) return;
 
                 addChatbotMessage(chatbotInput.value, true);
                 chatbotInput.value = '';
 
-                // Ищем ответ
                 let response = 'Извините, я не понял вопрос. Попробуйте спросить про промокоды, бонусы или казино.<br><br>Если нужна более детальная помощь, напишите лучше <a href="https://t.me/PosledniyLUDIK" target="_blank" style="color: var(--neon-cyan); text-decoration: underline;">@PosledniyLUDIK</a> — он поможет!';
                 for (const [key, value] of Object.entries(chatbotResponses)) {
                     if (message.includes(key)) {
@@ -4639,23 +4837,35 @@
                 }, 500);
             }
 
-            // Обработчики событий
-            chatbotToggle.addEventListener('click', () => {
-                if (chatbot) {
-                    chatbot.classList.add('open');
-                    chatbotToggle.classList.add('hidden');
+            // Привязываем обработчик клика
+            function openChatbot(e) {
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
                 }
-            });
+                chatbot.classList.add('open');
+                chatbotToggle.classList.add('hidden');
+            }
+            
+            function closeChatbot(e) {
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                chatbot.classList.remove('open');
+                chatbotToggle.classList.remove('hidden');
+            }
+            
+            // Привязываем через onclick и addEventListener
+            chatbotToggle.onclick = openChatbot;
+            chatbotToggle.addEventListener('click', openChatbot, true);
+            chatbotToggle.addEventListener('click', openChatbot, false);
 
-            chatbotClose.addEventListener('click', () => {
-                if (chatbot) {
-                    chatbot.classList.remove('open');
-                    chatbotToggle.classList.remove('hidden');
-                }
-            });
+            chatbotClose.onclick = closeChatbot;
+            chatbotClose.addEventListener('click', closeChatbot, true);
+            chatbotClose.addEventListener('click', closeChatbot, false);
 
             chatbotSend.addEventListener('click', handleChatbotMessage);
-
             chatbotInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     handleChatbotMessage();
@@ -4663,12 +4873,39 @@
             });
         }
 
-        // Инициализируем чатбот после загрузки DOM
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initChatbot);
-        } else {
-            initChatbot();
+        // Инициализируем боковой чатбот - упрощенная версия
+        function initChatbotDelayed() {
+            function tryInit() {
+                const chatbotToggle = document.getElementById('chatbotToggle');
+                const chatbot = document.getElementById('chatbot');
+                
+                if (chatbotToggle && chatbot) {
+                    initChatbot();
+                    return true;
+                }
+                return false;
+            }
+            
+            // Пробуем несколько раз с разными задержками
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => {
+                    if (!tryInit()) {
+                        setTimeout(() => tryInit(), 500);
+                    }
+                });
+            } else {
+                if (!tryInit()) {
+                    setTimeout(() => tryInit(), 500);
+                    setTimeout(() => tryInit(), 1000);
+                }
+            }
+            
+            // Также пробуем после полной загрузки
+            window.addEventListener('load', () => {
+                setTimeout(() => tryInit(), 100);
+            });
         }
+        initChatbotDelayed();
 
 
         // 30. Адаптивные изображения (WebP с fallback)

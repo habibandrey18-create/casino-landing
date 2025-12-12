@@ -31,8 +31,10 @@
                         ${badgesHtml}
                     </div>
                     <div class="casino-card-name">
-                        <span>${casino.name}</span>
-                        <span class="casino-arrow">→</span>
+                        <span class="casino-name-text">${casino.name}</span>
+                        <button class="casino-go-btn" type="button">
+                            Перейти <span class="casino-go-arrow">→</span>
+                        </button>
                     </div>
                     <p class="casino-card-desc">
                         ${casino.desc}

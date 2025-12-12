@@ -21,19 +21,33 @@
             ts: new Date().toISOString()
         };
 
-        // Используем sendBeacon для надежной отправки перед переходом
-        if (navigator.sendBeacon) {
-            const blob = new Blob([JSON.stringify(eventData)], { type: 'application/json' });
-            navigator.sendBeacon(API_URL, blob);
-        } else {
+        // Проверяем, что мы не на file:// протоколе
+        const isLocalFile = window.location.protocol === 'file:';
+        
+        // Используем sendBeacon для надежной отправки перед переходом (только на HTTP/HTTPS)
+        if (!isLocalFile && navigator.sendBeacon) {
+            try {
+                const blob = new Blob([JSON.stringify(eventData)], { type: 'application/json' });
+                navigator.sendBeacon(API_URL, blob);
+            } catch (err) {
+                // Fallback на fetch если sendBeacon не работает
+                fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(eventData),
+                    keepalive: true
+                }).catch(() => {}); // Игнорируем ошибки трекинга
+            }
+        } else if (!isLocalFile) {
             // Fallback на fetch с keepalive
             fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(eventData),
                 keepalive: true
-            }).catch(err => console.error('Tracking error:', err));
+            }).catch(() => {}); // Игнорируем ошибки трекинга
         }
+        // Если file:// протокол - просто игнорируем трекинг
     }
 
     // Трекинг просмотра страницы
