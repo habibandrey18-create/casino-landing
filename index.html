@@ -4456,77 +4456,91 @@
         scheduleNextProof();
 
         // 33. Виртуальный помощник (Chatbot)
-        const chatbotToggle = document.getElementById('chatbotToggle');
-        const chatbot = document.getElementById('chatbot');
-        const chatbotClose = document.getElementById('chatbotClose');
-        const chatbotInput = document.getElementById('chatbotInput');
-        const chatbotSend = document.getElementById('chatbotSend');
-        const chatbotMessages = document.getElementById('chatbotMessages');
+        function initChatbot() {
+            const chatbotToggle = document.getElementById('chatbotToggle');
+            const chatbot = document.getElementById('chatbot');
+            const chatbotClose = document.getElementById('chatbotClose');
+            const chatbotInput = document.getElementById('chatbotInput');
+            const chatbotSend = document.getElementById('chatbotSend');
+            const chatbotMessages = document.getElementById('chatbotMessages');
 
-        const chatbotResponses = {
-            'промокод': 'Промокод LUDKA работает во всех казино из раздела "ТОП с промокодом LUDKA". Просто скопируйте его и введите при регистрации!',
-            'бонус': 'Лучшие бонусы доступны в казино Royal Partners с промокодом LUDKA. Там вы получите до 50 бесплатных спинов и welcome-пакет!',
-            'казино': 'Рекомендую начать с казино из раздела "ТОП с промокодом LUDKA" - это проверенные Royal Partners с лучшими условиями.',
-            'регистрация': 'Для регистрации перейдите на сайт казино, нажмите "Регистрация" и введите промокод LUDKA в соответствующее поле.',
-            'выплаты': 'Все казино из раздела "ТОП" гарантируют быстрые выплаты.',
-            'крипто': 'Казино с поддержкой криптовалют помечены бейджем "Крипто". Используйте фильтр для быстрого поиска.',
-            'лучший': 'Лучшие казино находятся в разделе "ТОП с промокодом LUDKA". Включите режим "Только лучшие" для показа топ-5.',
-            'помощь': 'Если нужна помощь, пишите @PosledniyLUDIK в Telegram. Также есть бот поддержки @ludikkhelp_bot.'
-        };
-
-        function addChatbotMessage(text, isUser = false) {
-            const message = document.createElement('div');
-            message.className = `chatbot-message ${isUser ? 'user' : 'bot'}`;
-            message.innerHTML = text; // Используем innerHTML для поддержки HTML
-            chatbotMessages.appendChild(message);
-            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
-        }
-
-        function handleChatbotMessage() {
-            const message = chatbotInput.value.trim().toLowerCase();
-            if (!message) return;
-
-            addChatbotMessage(chatbotInput.value, true);
-            chatbotInput.value = '';
-
-            // Ищем ответ
-            let response = 'Извините, я не понял вопрос. Попробуйте спросить про промокоды, бонусы или казино.<br><br>Если нужна более детальная помощь, напишите лучше <a href="https://t.me/PosledniyLUDIK" target="_blank" style="color: var(--neon-cyan); text-decoration: underline;">@PosledniyLUDIK</a> — он поможет!';
-            for (const [key, value] of Object.entries(chatbotResponses)) {
-                if (message.includes(key)) {
-                    response = value;
-                    break;
-                }
+            // Проверяем, что все элементы найдены
+            if (!chatbotToggle || !chatbot || !chatbotClose || !chatbotInput || !chatbotSend || !chatbotMessages) {
+                console.warn('Chatbot elements not found');
+                return;
             }
 
-            setTimeout(() => {
-                addChatbotMessage(response);
-            }, 500);
-        }
+            const chatbotResponses = {
+                'промокод': 'Промокод LUDKA работает во всех казино из раздела "ТОП с промокодом LUDKA". Просто скопируйте его и введите при регистрации!',
+                'бонус': 'Лучшие бонусы доступны в казино Royal Partners с промокодом LUDKA. Там вы получите до 50 бесплатных спинов и welcome-пакет!',
+                'казино': 'Рекомендую начать с казино из раздела "ТОП с промокодом LUDKA" - это проверенные Royal Partners с лучшими условиями.',
+                'регистрация': 'Для регистрации перейдите на сайт казино, нажмите "Регистрация" и введите промокод LUDKA в соответствующее поле.',
+                'выплаты': 'Все казино из раздела "ТОП" гарантируют быстрые выплаты.',
+                'крипто': 'Казино с поддержкой криптовалют помечены бейджем "Крипто". Используйте фильтр для быстрого поиска.',
+                'лучший': 'Лучшие казино находятся в разделе "ТОП с промокодом LUDKA". Включите режим "Только лучшие" для показа топ-5.',
+                'помощь': 'Если нужна помощь, пишите @PosledniyLUDIK в Telegram. Также есть бот поддержки @ludikkhelp_bot.'
+            };
 
-        if (chatbotToggle) {
+            function addChatbotMessage(text, isUser = false) {
+                if (!chatbotMessages) return;
+                const message = document.createElement('div');
+                message.className = `chatbot-message ${isUser ? 'user' : 'bot'}`;
+                message.innerHTML = text; // Используем innerHTML для поддержки HTML
+                chatbotMessages.appendChild(message);
+                chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+            }
+
+            function handleChatbotMessage() {
+                if (!chatbotInput || !chatbotMessages) return;
+                const message = chatbotInput.value.trim().toLowerCase();
+                if (!message) return;
+
+                addChatbotMessage(chatbotInput.value, true);
+                chatbotInput.value = '';
+
+                // Ищем ответ
+                let response = 'Извините, я не понял вопрос. Попробуйте спросить про промокоды, бонусы или казино.<br><br>Если нужна более детальная помощь, напишите лучше <a href="https://t.me/PosledniyLUDIK" target="_blank" style="color: var(--neon-cyan); text-decoration: underline;">@PosledniyLUDIK</a> — он поможет!';
+                for (const [key, value] of Object.entries(chatbotResponses)) {
+                    if (message.includes(key)) {
+                        response = value;
+                        break;
+                    }
+                }
+
+                setTimeout(() => {
+                    addChatbotMessage(response);
+                }, 500);
+            }
+
+            // Обработчики событий
             chatbotToggle.addEventListener('click', () => {
-                chatbot.classList.add('open');
-                chatbotToggle.classList.add('hidden');
+                if (chatbot) {
+                    chatbot.classList.add('open');
+                    chatbotToggle.classList.add('hidden');
+                }
             });
-        }
 
-        if (chatbotClose) {
             chatbotClose.addEventListener('click', () => {
-                chatbot.classList.remove('open');
-                chatbotToggle.classList.remove('hidden');
+                if (chatbot) {
+                    chatbot.classList.remove('open');
+                    chatbotToggle.classList.remove('hidden');
+                }
             });
-        }
 
-        if (chatbotSend) {
             chatbotSend.addEventListener('click', handleChatbotMessage);
-        }
 
-        if (chatbotInput) {
             chatbotInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     handleChatbotMessage();
                 }
             });
+        }
+
+        // Инициализируем чатбот после загрузки DOM
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initChatbot);
+        } else {
+            initChatbot();
         }
 
 
