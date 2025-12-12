@@ -2721,12 +2721,24 @@
             justify-content: center;
             font-size: 1.5rem;
             z-index: 998;
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            will-change: transform;
+            touch-action: manipulation; /* Улучшает отзывчивость на мобильных */
         }
 
         .chatbot-toggle:hover {
             transform: scale(1.1);
             box-shadow: 0 6px 30px rgba(102, 26, 255, 0.6);
+        }
+
+        @media (max-width: 414px) {
+            .chatbot-toggle {
+                width: 52px;
+                height: 52px;
+                bottom: 16px;
+                left: 16px;
+                font-size: 1.3rem;
+            }
         }
 
         .chatbot-toggle.hidden {
@@ -2929,6 +2941,72 @@
 
             .support-btn {
                 width: 100%;
+            }
+        }
+
+        /* Оптимизация для очень маленьких экранов (320-414px) */
+        @media (max-width: 414px) {
+            .container {
+                padding: 1rem 0.75rem;
+            }
+
+            .title-text {
+                font-size: 1.75rem;
+                line-height: 1.2;
+            }
+
+            .title-icon {
+                font-size: 2rem;
+            }
+
+            .title-subtitle {
+                font-size: 0.85rem;
+            }
+
+            .promo-code {
+                font-size: 1.1rem;
+                padding: 0.75rem 1rem;
+            }
+
+            .nav-link {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.8rem;
+            }
+
+            .section {
+                padding: 1.5rem 1rem;
+                margin-bottom: 2rem;
+            }
+
+            .section-title {
+                font-size: 1.4rem;
+            }
+
+            /* Оптимизация blur эффектов для мобильных (уменьшаем для производительности) */
+            .nav-menu,
+            [data-theme="light"] .nav-menu {
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+            }
+
+            .support-popup,
+            [data-theme="light"] .support-popup {
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+            }
+
+            .game-bg-image {
+                filter: blur(20px) brightness(0.6);
+            }
+
+            .chatbot {
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+            }
+
+            .age-modal-content {
+                backdrop-filter: blur(30px);
+                -webkit-backdrop-filter: blur(30px);
             }
         }
 
@@ -4065,60 +4143,74 @@
             }, 100);
         });
 
-        // Параллакс эффект для фона и секций при скролле
+        // Оптимизированный параллакс эффект с throttling и проверкой производительности
         let lastScrollY = 0;
-        window.addEventListener('scroll', () => {
+        let ticking = false;
+        const isMobile = window.innerWidth < 768;
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        
+        // Кэшируем элементы для параллакса
+        const parallaxSections = document.querySelectorAll('.section');
+        const parallaxShapes = document.querySelectorAll('.shape');
+        const parallaxGameImages = document.querySelectorAll('.game-bg-image');
+        
+        function updateParallax() {
             const scrollY = window.scrollY;
-            if (Math.abs(scrollY - lastScrollY) > 5) {
-                document.body.style.setProperty('--scroll-y', `${scrollY * 0.5}px`);
-                
-                // Параллакс для секций
-                const sections = document.querySelectorAll('.section');
-                sections.forEach((section, index) => {
+            
+            // Обновляем CSS переменную для фона
+            document.body.style.setProperty('--scroll-y', `${scrollY * 0.5}px`);
+            
+            // Отключаем параллакс на мобильных и при prefers-reduced-motion
+            if (!isMobile && !prefersReducedMotion) {
+                // Параллакс для секций (упрощенный)
+                parallaxSections.forEach((section) => {
                     const rect = section.getBoundingClientRect();
-                    const sectionTop = rect.top + scrollY;
-                    const scrollProgress = (scrollY - sectionTop + window.innerHeight) / (window.innerHeight + rect.height);
-                    
-                    if (scrollProgress > 0 && scrollProgress < 1) {
-                        const parallaxOffset = (scrollY - sectionTop) * 0.1;
-                        section.style.transform = `translateY(${parallaxOffset}px)`;
+                    if (rect.top < window.innerHeight && rect.bottom > 0) {
+                        const parallaxOffset = scrollY * 0.05; // Уменьшена интенсивность
+                        section.style.transform = `translate3d(0, ${parallaxOffset}px, 0)`;
                     }
                 });
                 
-                // Параллакс для геометрических фигур
-                const shapes = document.querySelectorAll('.shape');
-                shapes.forEach((shape, index) => {
-                    const speed = 0.3 + (index % 3) * 0.1;
-                    const offset = scrollY * speed;
-                    shape.style.transform = `translateY(${offset}px)`;
+                // Параллакс для фигур (только видимые)
+                parallaxShapes.forEach((shape, index) => {
+                    const rect = shape.getBoundingClientRect();
+                    if (rect.top < window.innerHeight && rect.bottom > 0) {
+                        const speed = 0.2 + (index % 2) * 0.1;
+                        const offset = scrollY * speed;
+                        shape.style.transform = `translate3d(0, ${offset}px, 0)`;
+                    }
                 });
-
-                // Параллакс для фоновых изображений игр
-                const gameImages = document.querySelectorAll('.game-bg-image');
-                gameImages.forEach((img, index) => {
-                    const speed = 0.15 + (index % 4) * 0.05;
-                    const offset = scrollY * speed;
-                    const currentTransform = img.style.transform || '';
-                    const baseTransform = currentTransform.includes('translate') 
-                        ? currentTransform.split('translate')[0] 
-                        : '';
-                    img.style.transform = `${baseTransform} translateY(${offset}px)`;
-                });
-                
-                lastScrollY = scrollY;
+            }
+            
+            lastScrollY = scrollY;
+            ticking = false;
+        }
+        
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                requestAnimationFrame(updateParallax);
+                ticking = true;
             }
         }, { passive: true });
 
 
         // ========== ВСЕ НОВЫЕ ФУНКЦИИ ==========
 
-        // 1. Прогресс-бар чтения
+        // 1. Прогресс-бар чтения (оптимизированный с throttling)
         const readingProgress = document.getElementById('readingProgress');
         if (readingProgress) {
-            window.addEventListener('scroll', () => {
+            let progressTicking = false;
+            function updateProgress() {
                 const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
                 const scrolled = (window.scrollY / windowHeight) * 100;
                 readingProgress.style.width = scrolled + '%';
+                progressTicking = false;
+            }
+            window.addEventListener('scroll', () => {
+                if (!progressTicking) {
+                    requestAnimationFrame(updateProgress);
+                    progressTicking = true;
+                }
             }, { passive: true });
         }
 
@@ -4146,7 +4238,18 @@
             });
         }
 
-        window.addEventListener('scroll', updateActiveNav, { passive: true });
+        // Throttling для updateActiveNav
+        let navTicking = false;
+        function throttledUpdateActiveNav() {
+            updateActiveNav();
+            navTicking = false;
+        }
+        window.addEventListener('scroll', () => {
+            if (!navTicking) {
+                requestAnimationFrame(throttledUpdateActiveNav);
+                navTicking = true;
+            }
+        }, { passive: true });
         updateActiveNav();
 
         // Обработка кликов по навигационным ссылкам
@@ -4282,38 +4385,53 @@
             }
         }
 
-        window.addEventListener('scroll', updateBreadcrumbs, { passive: true });
+        // Throttling для updateBreadcrumbs
+        let breadcrumbTicking = false;
+        function throttledUpdateBreadcrumbs() {
+            updateBreadcrumbs();
+            breadcrumbTicking = false;
+        }
+        window.addEventListener('scroll', () => {
+            if (!breadcrumbTicking) {
+                requestAnimationFrame(throttledUpdateBreadcrumbs);
+                breadcrumbTicking = true;
+            }
+        }, { passive: true });
         updateBreadcrumbs();
 
 
         // 9. Ленивая загрузка изображений (уже реализовано выше в фильтрах)
 
-        // 10. Микро-интерактивность - эффект "магнита" для курсора на карточках
-        casinoCards.forEach(card => {
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-                const moveX = (x - centerX) * 0.1;
-                const moveY = (y - centerY) * 0.1;
+        // 10. Микро-интерактивность - эффект "магнита" для курсора на карточках (оптимизировано)
+        // Отключаем на мобильных устройствах для производительности
+        if (!isMobile) {
+            casinoCards.forEach(card => {
+                let cardTicking = false;
+                function updateCardTransform(e) {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const moveX = (x - centerX) * 0.1;
+                    const moveY = (y - centerY) * 0.1;
+                    
+                    card.style.transform = `translate3d(${moveX}px, ${moveY - 5}px, 0)`;
+                    cardTicking = false;
+                }
                 
-                card.style.transform = `translateY(-5px) translate(${moveX}px, ${moveY}px)`;
-            });
+                card.addEventListener('mousemove', (e) => {
+                    if (!cardTicking) {
+                        requestAnimationFrame(() => updateCardTransform(e));
+                        cardTicking = true;
+                    }
+                }, { passive: true });
 
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = '';
-            });
-
-            // Пульсирующие точки на кнопках при hover
-            const badges = card.querySelectorAll('.badge');
-            badges.forEach(badge => {
-                badge.addEventListener('mouseenter', () => {
-                    badge.style.animation = 'pulse 0.6s ease';
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = '';
                 });
             });
-        });
+        }
 
         // Анимация пульса для бейджей
         const style = document.createElement('style');
@@ -4379,24 +4497,33 @@
             }
         }
 
-        // Постоянное увеличение счётчиков
+        // Постоянное увеличение счётчиков (оптимизировано - один setInterval вместо двух)
+        let registrationsTimer = null;
+        let playersTimer = null;
+        
         function startContinuousGrowth() {
-            // Увеличиваем каждые 3-8 секунд случайным образом
-            setInterval(() => {
-                // Регистрации: +1-3 каждые 3-8 секунд
+            // Очищаем предыдущие таймеры если есть
+            if (registrationsTimer) clearTimeout(registrationsTimer);
+            if (playersTimer) clearTimeout(playersTimer);
+            
+            function scheduleRegistrations() {
                 if (Math.random() > 0.3) { // 70% вероятность увеличения
                     const increment = Math.floor(Math.random() * 3) + 1;
                     currentRegistrations = incrementCounter(todayRegistrations, currentRegistrations, increment, 9999);
                 }
-            }, 3000 + Math.random() * 5000);
-
-            setInterval(() => {
-                // Активные игроки: +1-5 каждые 2-6 секунд
+                registrationsTimer = setTimeout(scheduleRegistrations, 3000 + Math.random() * 5000);
+            }
+            
+            function schedulePlayers() {
                 if (Math.random() > 0.2) { // 80% вероятность увеличения
                     const increment = Math.floor(Math.random() * 5) + 1;
                     currentActivePlayers = incrementCounter(activePlayers, currentActivePlayers, increment, 9999);
                 }
-            }, 2000 + Math.random() * 4000);
+                playersTimer = setTimeout(schedulePlayers, 2000 + Math.random() * 4000);
+            }
+            
+            scheduleRegistrations();
+            schedulePlayers();
         }
 
         // Запуск при появлении блока статистики
@@ -4466,7 +4593,7 @@
 
             // Проверяем, что все элементы найдены
             if (!chatbotToggle || !chatbot || !chatbotClose || !chatbotInput || !chatbotSend || !chatbotMessages) {
-                console.warn('Chatbot elements not found');
+                // Chatbot elements not found - silently fail
                 return;
             }
 

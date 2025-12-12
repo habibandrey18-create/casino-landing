@@ -11,13 +11,13 @@ const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'default-secret-change-in-production';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 
-// Отладочная информация (удалить в продакшене)
-console.log('=== Server Configuration ===');
-console.log('ADMIN_PASSWORD loaded:', ADMIN_PASSWORD ? 'YES' : 'NO');
-console.log('ADMIN_PASSWORD length:', ADMIN_PASSWORD ? ADMIN_PASSWORD.length : 0);
-console.log('JWT_SECRET loaded:', JWT_SECRET ? 'YES' : 'NO');
-console.log('PORT:', PORT);
-console.log('===========================');
+// Server configuration (production mode - minimal logging)
+if (process.env.NODE_ENV !== 'production') {
+    console.log('Server starting on port:', PORT);
+}
+
+// Trust proxy (для работы за прокси Render)
+app.set('trust proxy', true);
 
 // Middleware
 app.use(express.json());
@@ -109,10 +109,7 @@ app.post('/api/events', apiLimiter, async (req, res) => {
 app.post('/api/admin/login', apiLimiter, (req, res) => {
     const { password } = req.body;
     
-    // Отладка (удалить в продакшене)
-    console.log('Login attempt - Received password length:', password ? password.length : 0);
-    console.log('Expected password:', ADMIN_PASSWORD);
-    console.log('Passwords match:', password === ADMIN_PASSWORD);
+    // Login attempt (logging only in development)
     
     // Убираем пробелы и сравниваем
     const cleanPassword = password ? password.trim() : '';
