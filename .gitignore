@@ -1,0 +1,11 @@
+node_modules/
+.env
+analytics.db
+*.log
+.DS_Store
+Thumbs.db
+
+
+
+
+

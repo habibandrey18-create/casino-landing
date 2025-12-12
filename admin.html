@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель - Статистика</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .login-form {
+            max-width: 400px;
+            margin: 10rem auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .login-form h1 {
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #00d4ff, #00f5ff);
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .error {
+            color: #ff7675;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        .admin-panel {
+            display: none;
+        }
+
+        .admin-panel.active {
+            display: block;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-card h3 {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #00d4ff;
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: rgba(0, 212, 255, 0.3);
+            border-color: #00d4ff;
+        }
+
+        table {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            background: rgba(0, 212, 255, 0.2);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Форма входа -->
+        <div class="login-form" id="loginForm">
+            <h1>Вход в админ-панель</h1>
+            <form id="loginFormElement">
+                <div class="form-group">
+                    <label for="password">Пароль</label>
+                    <input type="password" id="password" required autofocus>
+                </div>
+                <button type="submit" class="btn">Войти</button>
+                <div class="error" id="loginError"></div>
+            </form>
+        </div>
+
+        <!-- Админ-панель -->
+        <div class="admin-panel" id="adminPanel">
+            <div class="header">
+                <h1>Статистика сайта</h1>
+                <button class="btn" onclick="logout()" style="width: auto; padding: 0.5rem 1rem;">Выйти</button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Просмотры страниц</h3>
+                    <div class="value" id="totalPageviews">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Клики по казино</h3>
+                    <div class="value" id="totalClicks">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Конверсия</h3>
+                    <div class="value" id="conversion">0%</div>
+                </div>
+            </div>
+
+            <div class="filters">
+                <button class="filter-btn active" data-period="today">Сегодня</button>
+                <button class="filter-btn" data-period="7days">7 дней</button>
+                <button class="filter-btn" data-period="30days">30 дней</button>
+                <button class="filter-btn" data-period="all">Всё время</button>
+            </div>
+
+            <h2 style="margin-bottom: 1rem;">ТОП казино по кликам</h2>
+            <div id="casinoTable">
+                <div class="loading">Загрузка...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPeriod = 'today';
+
+        // Проверка авторизации
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/admin/check');
+                if (response.ok) {
+                    showAdminPanel();
+                    loadStats();
+                }
+            } catch (err) {
+                console.error('Auth check failed:', err);
+            }
+        }
+
+        // Вход
+        document.getElementById('loginFormElement').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('loginError');
+
+            try {
+                const response = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+
+                if (response.ok) {
+                    document.getElementById('loginForm').style.display = 'none';
+                    showAdminPanel();
+                    loadStats();
+                } else {
+                    errorDiv.textContent = 'Неверный пароль';
+                }
+            } catch (err) {
+                errorDiv.textContent = 'Ошибка подключения';
+            }
+        });
+
+        // Выход
+        async function logout() {
+            await fetch('/api/admin/logout', { method: 'POST' });
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('adminPanel').classList.remove('active');
+        }
+
+        // Показать админ-панель
+        function showAdminPanel() {
+            document.getElementById('adminPanel').classList.add('active');
+        }
+
+        // Получить даты для периода
+        function getDateRange(period) {
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            
+            switch(period) {
+                case 'today':
+                    return {
+                        from: today.toISOString().split('T')[0],
+                        to: now.toISOString().split('T')[0]
+                    };
+                case '7days':
+                    const weekAgo = new Date(today);
+                    weekAgo.setDate(weekAgo.getDate() - 7);
+                    return {
+                        from: weekAgo.toISOString().split('T')[0],
+                        to: now.toISOString().split('T')[0]
+                    };
+                case '30days':
+                    const monthAgo = new Date(today);
+                    monthAgo.setDate(monthAgo.getDate() - 30);
+                    return {
+                        from: monthAgo.toISOString().split('T')[0],
+                        to: now.toISOString().split('T')[0]
+                    };
+                default:
+                    return { from: null, to: null };
+            }
+        }
+
+        // Загрузка статистики
+        async function loadStats() {
+            const { from, to } = getDateRange(currentPeriod);
+            const params = new URLSearchParams();
+            if (from) params.append('from', from);
+            if (to) params.append('to', to);
+
+            try {
+                const response = await fetch(`/api/stats?${params}`);
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        logout();
+                        return;
+                    }
+                    throw new Error('Failed to load stats');
+                }
+
+                const data = await response.json();
+                
+                // Обновление общей статистики
+                document.getElementById('totalPageviews').textContent = data.total_pageviews || 0;
+                document.getElementById('totalClicks').textContent = data.total_clicks || 0;
+                
+                const conversion = data.total_pageviews > 0 
+                    ? ((data.total_clicks / data.total_pageviews) * 100).toFixed(2)
+                    : 0;
+                document.getElementById('conversion').textContent = conversion + '%';
+
+                // Таблица казино
+                const tableHtml = data.breakdown && data.breakdown.length > 0
+                    ? `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Казино</th>
+                                    <th>Кликов</th>
+                                    <th>Конверсия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.breakdown.map(casino => `
+                                    <tr>
+                                        <td>${casino.label || casino.casinoId}</td>
+                                        <td>${casino.clicks}</td>
+                                        <td>${casino.conversion}%</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `
+                    : '<div class="loading">Нет данных</div>';
+                
+                document.getElementById('casinoTable').innerHTML = tableHtml;
+            } catch (err) {
+                console.error('Error loading stats:', err);
+                document.getElementById('casinoTable').innerHTML = '<div class="loading">Ошибка загрузки</div>';
+            }
+        }
+
+        // Обработчики фильтров
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentPeriod = btn.getAttribute('data-period');
+                loadStats();
+            });
+        });
+
+        // Проверка при загрузке
+        checkAuth();
+    </script>
+</body>
+</html>
+
+
+
+
+

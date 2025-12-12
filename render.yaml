@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: casino-landing
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      # ВАЖНО: Добавьте эти переменные вручную в панели Render:
+      # ADMIN_PASSWORD - ваш пароль для админ-панели
+      # JWT_SECRET - случайная строка для безопасности
+
+
