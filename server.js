@@ -215,6 +215,60 @@ app.get('/api/stats/daily', authenticateAdmin, (req, res) => {
     });
 });
 
+// API: Статистика по устройствам
+app.get('/api/stats/devices', authenticateAdmin, (req, res) => {
+    const { from, to } = req.query;
+    
+    let dateFilter = '';
+    if (from && to) {
+        dateFilter = `WHERE created_at >= '${from}' AND created_at <= '${to} 23:59:59'`;
+    } else if (from) {
+        dateFilter = `WHERE created_at >= '${from}'`;
+    } else if (to) {
+        dateFilter = `WHERE created_at <= '${to} 23:59:59'`;
+    }
+
+    db.all(`SELECT 
+        COALESCE(device_type, 'Unknown') as device,
+        COUNT(*) as count
+        FROM events
+        ${dateFilter}
+        GROUP BY device_type
+        ORDER BY count DESC`, (err, rows) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database error' });
+        }
+        res.json(rows);
+    });
+});
+
+// API: Статистика по типам событий
+app.get('/api/stats/events', authenticateAdmin, (req, res) => {
+    const { from, to } = req.query;
+    
+    let dateFilter = '';
+    if (from && to) {
+        dateFilter = `WHERE created_at >= '${from}' AND created_at <= '${to} 23:59:59'`;
+    } else if (from) {
+        dateFilter = `WHERE created_at >= '${from}'`;
+    } else if (to) {
+        dateFilter = `WHERE created_at <= '${to} 23:59:59'`;
+    }
+
+    db.all(`SELECT 
+        type,
+        COUNT(*) as count
+        FROM events
+        ${dateFilter}
+        GROUP BY type
+        ORDER BY count DESC`, (err, rows) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database error' });
+        }
+        res.json(rows);
+    });
+});
+
 // Проверка авторизации для админки
 app.get('/api/admin/check', authenticateAdmin, (req, res) => {
     res.json({ authenticated: true });

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Админ-панель - Статистика</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -13,30 +14,37 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1a2e 50%, #16213e 100%);
             color: #fff;
             min-height: 100vh;
-            padding: 2rem;
+            padding: 1rem;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
         }
 
+        /* Форма входа */
         .login-form {
-            max-width: 400px;
-            margin: 10rem auto;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 2rem;
-            border-radius: 16px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 450px;
+            margin: 8rem auto;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 3rem;
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
         }
 
         .login-form h1 {
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
             text-align: center;
+            font-size: 2rem;
+            background: linear-gradient(135deg, #00d4ff, #00f5ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .form-group {
@@ -45,47 +53,70 @@
 
         .form-group label {
             display: block;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
             font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
         }
 
         .form-group input {
             width: 100%;
-            padding: 0.75rem;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
+            padding: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
             background: rgba(255, 255, 255, 0.1);
             color: #fff;
             font-size: 1rem;
+            transition: all 0.3s;
         }
 
         .form-group input:focus {
             outline: none;
             border-color: #00d4ff;
-            box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+            background: rgba(255, 255, 255, 0.15);
         }
 
         .btn {
-            width: 100%;
-            padding: 0.75rem;
+            padding: 1rem 2rem;
             background: linear-gradient(135deg, #00d4ff, #00f5ff);
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             color: #000;
             font-size: 1rem;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
         }
 
         .btn:hover {
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
         }
 
         .error {
             color: #ff7675;
-            margin-top: 0.5rem;
+            margin-top: 1rem;
             text-align: center;
+            padding: 0.75rem;
+            background: rgba(255, 118, 117, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 118, 117, 0.3);
         }
 
         .admin-panel {
@@ -96,92 +127,393 @@
             display: block;
         }
 
+        /* Шапка */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
+        .header h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, #00d4ff, #00f5ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        /* Карточки статистики */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
 
         .stat-card {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 1.5rem;
-            border-radius: 12px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+            padding: 2rem;
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #00d4ff, #00f5ff);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 32px rgba(0, 212, 255, 0.2);
+            border-color: rgba(0, 212, 255, 0.4);
         }
 
         .stat-card h3 {
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 0.5rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .stat-card .value {
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: 700;
-            color: #00d4ff;
+            background: linear-gradient(135deg, #00d4ff, #00f5ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
         }
 
+        .stat-card .change {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Фильтры */
         .filters {
             display: flex;
             gap: 1rem;
             margin-bottom: 2rem;
             flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filters-group {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
         }
 
         .filter-btn {
-            padding: 0.5rem 1rem;
+            padding: 0.75rem 1.5rem;
             background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
             color: #fff;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s;
+            font-weight: 600;
         }
 
-        .filter-btn:hover,
-        .filter-btn.active {
-            background: rgba(0, 212, 255, 0.3);
+        .filter-btn:hover {
+            background: rgba(0, 212, 255, 0.2);
             border-color: #00d4ff;
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(0, 245, 255, 0.3));
+            border-color: #00d4ff;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .auto-refresh-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .auto-refresh-toggle:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .auto-refresh-toggle.active {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: #00d4ff;
+        }
+
+        /* Графики */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 2rem;
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .chart-card h2 {
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        /* Таблица */
+        .table-section {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 2rem;
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            margin-bottom: 2rem;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .table-header h2 {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .search-box {
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            min-width: 250px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 12px;
         }
 
         table {
             width: 100%;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            overflow: hidden;
             border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.05);
         }
 
         th, td {
-            padding: 1rem;
+            padding: 1.25rem;
             text-align: left;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         th {
-            background: rgba(0, 212, 255, 0.2);
+            background: rgba(0, 212, 255, 0.15);
             font-weight: 600;
+            color: #00d4ff;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+
+        th:hover {
+            background: rgba(0, 212, 255, 0.25);
+        }
+
+        th.sort-asc::after {
+            content: ' ▲';
+            font-size: 0.8em;
+        }
+
+        th.sort-desc::after {
+            content: ' ▼';
+            font-size: 0.8em;
         }
 
         tr:hover {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        td {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-high {
+            background: rgba(0, 255, 200, 0.2);
+            color: #00ffc8;
+            border: 1px solid rgba(0, 255, 200, 0.4);
+        }
+
+        .badge-medium {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border: 1px solid rgba(255, 193, 7, 0.4);
+        }
+
+        .badge-low {
+            background: rgba(255, 118, 117, 0.2);
+            color: #ff7675;
+            border: 1px solid rgba(255, 118, 117, 0.4);
         }
 
         .loading {
             text-align: center;
-            padding: 2rem;
+            padding: 3rem;
             color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1rem;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #00d4ff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Мобильная адаптация */
+        @media (max-width: 768px) {
+            body {
+                padding: 0.5rem;
+            }
+
+            .login-form {
+                margin: 4rem auto;
+                padding: 2rem;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+
+            .header-actions .btn {
+                flex: 1;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+
+            .table-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                width: 100%;
+                min-width: auto;
+            }
+
+            table {
+                font-size: 0.9rem;
+            }
+
+            th, td {
+                padding: 0.75rem;
+            }
+        }
+
+        /* Уведомления */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            background: rgba(0, 212, 255, 0.95);
+            color: #000;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.4);
+            z-index: 10000;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
     </style>
 </head>
@@ -189,13 +521,13 @@
     <div class="container">
         <!-- Форма входа -->
         <div class="login-form" id="loginForm">
-            <h1>Вход в админ-панель</h1>
+            <h1>🔐 Вход в админ-панель</h1>
             <form id="loginFormElement">
                 <div class="form-group">
                     <label for="password">Пароль</label>
                     <input type="password" id="password" required autofocus>
                 </div>
-                <button type="submit" class="btn">Войти</button>
+                <button type="submit" class="btn" style="width: 100%;">Войти</button>
                 <div class="error" id="loginError"></div>
             </form>
         </div>
@@ -203,41 +535,100 @@
         <!-- Админ-панель -->
         <div class="admin-panel" id="adminPanel">
             <div class="header">
-                <h1>Статистика сайта</h1>
-                <button class="btn" onclick="logout()" style="width: auto; padding: 0.5rem 1rem;">Выйти</button>
+                <h1>📊 Статистика сайта</h1>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="exportData()">📥 Экспорт CSV</button>
+                    <button class="btn btn-secondary" onclick="logout()">Выйти</button>
+                </div>
             </div>
 
+            <!-- Карточки статистики -->
             <div class="stats-grid">
                 <div class="stat-card">
-                    <h3>Просмотры страниц</h3>
+                    <h3>👁️ Просмотры страниц</h3>
                     <div class="value" id="totalPageviews">0</div>
+                    <div class="change">За выбранный период</div>
                 </div>
                 <div class="stat-card">
-                    <h3>Клики по казино</h3>
+                    <h3>🖱️ Клики по казино</h3>
                     <div class="value" id="totalClicks">0</div>
+                    <div class="change">За выбранный период</div>
                 </div>
                 <div class="stat-card">
-                    <h3>Конверсия</h3>
+                    <h3>📈 Конверсия</h3>
                     <div class="value" id="conversion">0%</div>
+                    <div class="change">Клики / Просмотры × 100%</div>
+                </div>
+                <div class="stat-card">
+                    <h3>📱 Устройства</h3>
+                    <div class="value" id="totalDevices">-</div>
+                    <div class="change" id="deviceBreakdown">Загрузка...</div>
                 </div>
             </div>
 
+            <!-- Фильтры -->
             <div class="filters">
-                <button class="filter-btn active" data-period="today">Сегодня</button>
-                <button class="filter-btn" data-period="7days">7 дней</button>
-                <button class="filter-btn" data-period="30days">30 дней</button>
-                <button class="filter-btn" data-period="all">Всё время</button>
+                <div class="filters-group">
+                    <button class="filter-btn active" data-period="today">Сегодня</button>
+                    <button class="filter-btn" data-period="7days">7 дней</button>
+                    <button class="filter-btn" data-period="30days">30 дней</button>
+                    <button class="filter-btn" data-period="all">Всё время</button>
+                </div>
+                <div class="auto-refresh-toggle" id="autoRefreshToggle">
+                    <input type="checkbox" id="autoRefreshCheckbox" style="cursor: pointer;">
+                    <label for="autoRefreshCheckbox" style="cursor: pointer; margin: 0;">Автообновление (30 сек)</label>
+                </div>
             </div>
 
-            <h2 style="margin-bottom: 1rem;">ТОП казино по кликам</h2>
-            <div id="casinoTable">
-                <div class="loading">Загрузка...</div>
+            <!-- Графики -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h2>📊 Статистика по дням</h2>
+                    <div class="chart-container">
+                        <canvas id="dailyChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h2>📱 Устройства</h2>
+                    <div class="chart-container">
+                        <canvas id="devicesChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h2>🎯 Типы событий</h2>
+                    <div class="chart-container">
+                        <canvas id="eventsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Таблица казино -->
+            <div class="table-section">
+                <div class="table-header">
+                    <h2>🏆 ТОП казино по кликам</h2>
+                    <input type="text" class="search-box" id="searchInput" placeholder="🔍 Поиск по названию...">
+                </div>
+                <div class="table-wrapper">
+                    <div id="casinoTable">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Загрузка данных...
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
         let currentPeriod = 'today';
+        let autoRefreshInterval = null;
+        let dailyChart = null;
+        let devicesChart = null;
+        let eventsChart = null;
+        let currentData = null;
+        let sortColumn = null;
+        let sortDirection = 'desc';
 
         // Проверка авторизации
         async function checkAuth() {
@@ -245,7 +636,7 @@
                 const response = await fetch('/api/admin/check');
                 if (response.ok) {
                     showAdminPanel();
-                    loadStats();
+                    loadAllStats();
                 }
             } catch (err) {
                 console.error('Auth check failed:', err);
@@ -268,12 +659,12 @@
                 if (response.ok) {
                     document.getElementById('loginForm').style.display = 'none';
                     showAdminPanel();
-                    loadStats();
+                    loadAllStats();
                 } else {
-                    errorDiv.textContent = 'Неверный пароль';
+                    errorDiv.textContent = '❌ Неверный пароль';
                 }
             } catch (err) {
-                errorDiv.textContent = 'Ошибка подключения';
+                errorDiv.textContent = '❌ Ошибка подключения';
             }
         });
 
@@ -282,6 +673,10 @@
             await fetch('/api/admin/logout', { method: 'POST' });
             document.getElementById('loginForm').style.display = 'block';
             document.getElementById('adminPanel').classList.remove('active');
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
         }
 
         // Показать админ-панель
@@ -319,7 +714,17 @@
             }
         }
 
-        // Загрузка статистики
+        // Загрузка всех статистик
+        async function loadAllStats() {
+            await Promise.all([
+                loadStats(),
+                loadDailyStats(),
+                loadDevicesStats(),
+                loadEventsStats()
+            ]);
+        }
+
+        // Загрузка основной статистики
         async function loadStats() {
             const { from, to } = getDateRange(currentPeriod);
             const params = new URLSearchParams();
@@ -337,45 +742,342 @@
                 }
 
                 const data = await response.json();
+                currentData = data;
                 
-                // Обновление общей статистики
-                document.getElementById('totalPageviews').textContent = data.total_pageviews || 0;
-                document.getElementById('totalClicks').textContent = data.total_clicks || 0;
+                document.getElementById('totalPageviews').textContent = formatNumber(data.total_pageviews || 0);
+                document.getElementById('totalClicks').textContent = formatNumber(data.total_clicks || 0);
                 
                 const conversion = data.total_pageviews > 0 
                     ? ((data.total_clicks / data.total_pageviews) * 100).toFixed(2)
                     : 0;
                 document.getElementById('conversion').textContent = conversion + '%';
 
-                // Таблица казино
-                const tableHtml = data.breakdown && data.breakdown.length > 0
-                    ? `
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Казино</th>
-                                    <th>Кликов</th>
-                                    <th>Конверсия</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${data.breakdown.map(casino => `
-                                    <tr>
-                                        <td>${casino.label || casino.casinoId}</td>
-                                        <td>${casino.clicks}</td>
-                                        <td>${casino.conversion}%</td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    `
-                    : '<div class="loading">Нет данных</div>';
-                
-                document.getElementById('casinoTable').innerHTML = tableHtml;
+                renderCasinoTable(data.breakdown || []);
             } catch (err) {
                 console.error('Error loading stats:', err);
-                document.getElementById('casinoTable').innerHTML = '<div class="loading">Ошибка загрузки</div>';
+                document.getElementById('casinoTable').innerHTML = '<div class="loading">❌ Ошибка загрузки</div>';
             }
+        }
+
+        // Загрузка статистики по дням
+        async function loadDailyStats() {
+            const { from, to } = getDateRange(currentPeriod);
+            const params = new URLSearchParams();
+            if (from) params.append('from', from);
+            if (to) params.append('to', to);
+
+            try {
+                const response = await fetch(`/api/stats/daily?${params}`);
+                if (!response.ok) throw new Error('Failed to load daily stats');
+                const data = await response.json();
+
+                const labels = data.reverse().map(d => {
+                    const date = new Date(d.date);
+                    return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
+                });
+                const pageviews = data.map(d => d.pageviews || 0);
+                const clicks = data.map(d => d.clicks || 0);
+
+                if (dailyChart) {
+                    dailyChart.destroy();
+                }
+
+                dailyChart = new Chart(document.getElementById('dailyChart'), {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Просмотры',
+                            data: pageviews,
+                            borderColor: '#00d4ff',
+                            backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }, {
+                            label: 'Клики',
+                            data: clicks,
+                            borderColor: '#00f5ff',
+                            backgroundColor: 'rgba(0, 245, 255, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: { color: '#fff' }
+                            }
+                        },
+                        scales: {
+                            x: { ticks: { color: '#fff' }, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
+                            y: { ticks: { color: '#fff' }, grid: { color: 'rgba(255, 255, 255, 0.1)' } }
+                        }
+                    }
+                });
+            } catch (err) {
+                console.error('Error loading daily stats:', err);
+            }
+        }
+
+        // Загрузка статистики по устройствам
+        async function loadDevicesStats() {
+            const { from, to } = getDateRange(currentPeriod);
+            const params = new URLSearchParams();
+            if (from) params.append('from', from);
+            if (to) params.append('to', to);
+
+            try {
+                const response = await fetch(`/api/stats/devices?${params}`);
+                if (!response.ok) throw new Error('Failed to load devices stats');
+                const data = await response.json();
+
+                const total = data.reduce((sum, d) => sum + d.count, 0);
+                document.getElementById('totalDevices').textContent = formatNumber(total);
+                const topDevice = data[0];
+                document.getElementById('deviceBreakdown').textContent = topDevice 
+                    ? `Топ: ${topDevice.device} (${((topDevice.count / total) * 100).toFixed(1)}%)`
+                    : 'Нет данных';
+
+                if (devicesChart) {
+                    devicesChart.destroy();
+                }
+
+                devicesChart = new Chart(document.getElementById('devicesChart'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.map(d => d.device),
+                        datasets: [{
+                            data: data.map(d => d.count),
+                            backgroundColor: [
+                                'rgba(0, 212, 255, 0.8)',
+                                'rgba(0, 245, 255, 0.8)',
+                                'rgba(255, 193, 7, 0.8)',
+                                'rgba(255, 118, 117, 0.8)',
+                                'rgba(0, 255, 200, 0.8)'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: '#fff', padding: 15 }
+                            }
+                        }
+                    }
+                });
+            } catch (err) {
+                console.error('Error loading devices stats:', err);
+            }
+        }
+
+        // Загрузка статистики по типам событий
+        async function loadEventsStats() {
+            const { from, to } = getDateRange(currentPeriod);
+            const params = new URLSearchParams();
+            if (from) params.append('from', from);
+            if (to) params.append('to', to);
+
+            try {
+                const response = await fetch(`/api/stats/events?${params}`);
+                if (!response.ok) throw new Error('Failed to load events stats');
+                const data = await response.json();
+
+                if (eventsChart) {
+                    eventsChart.destroy();
+                }
+
+                const eventLabels = {
+                    'page_view': 'Просмотры страниц',
+                    'casino_click': 'Клики по казино',
+                    'promo_copy': 'Копирование промокода',
+                    'tool_click': 'Клики по инструментам'
+                };
+
+                eventsChart = new Chart(document.getElementById('eventsChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: data.map(d => eventLabels[d.type] || d.type),
+                        datasets: [{
+                            label: 'Количество',
+                            data: data.map(d => d.count),
+                            backgroundColor: 'rgba(0, 212, 255, 0.6)',
+                            borderColor: '#00d4ff',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            x: { ticks: { color: '#fff' }, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
+                            y: { ticks: { color: '#fff' }, grid: { color: 'rgba(255, 255, 255, 0.1)' } }
+                        }
+                    }
+                });
+            } catch (err) {
+                console.error('Error loading events stats:', err);
+            }
+        }
+
+        // Рендер таблицы казино
+        function renderCasinoTable(breakdown) {
+            if (!breakdown || breakdown.length === 0) {
+                document.getElementById('casinoTable').innerHTML = '<div class="loading">Нет данных</div>';
+                return;
+            }
+
+            const tableHtml = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable('name')">Казино</th>
+                            <th onclick="sortTable('clicks')">Кликов</th>
+                            <th onclick="sortTable('conversion')">Конверсия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="casinoTableBody">
+                        ${breakdown.map(casino => `
+                            <tr>
+                                <td>${casino.label || casino.casinoId || 'Неизвестно'}</td>
+                                <td>${formatNumber(casino.clicks)}</td>
+                                <td>
+                                    <span class="badge ${getConversionBadgeClass(parseFloat(casino.conversion))}">
+                                        ${casino.conversion}%
+                                    </span>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            
+            document.getElementById('casinoTable').innerHTML = tableHtml;
+        }
+
+        // Сортировка таблицы
+        function sortTable(column) {
+            if (!currentData || !currentData.breakdown) return;
+
+            if (sortColumn === column) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortDirection = 'desc';
+            }
+
+            const sorted = [...currentData.breakdown].sort((a, b) => {
+                let aVal, bVal;
+                if (column === 'name') {
+                    aVal = (a.label || a.casinoId || '').toLowerCase();
+                    bVal = (b.label || b.casinoId || '').toLowerCase();
+                } else if (column === 'clicks') {
+                    aVal = parseInt(a.clicks);
+                    bVal = parseInt(b.clicks);
+                } else {
+                    aVal = parseFloat(a.conversion);
+                    bVal = parseFloat(b.conversion);
+                }
+
+                if (sortDirection === 'asc') {
+                    return aVal > bVal ? 1 : -1;
+                } else {
+                    return aVal < bVal ? 1 : -1;
+                }
+            });
+
+            currentData.breakdown = sorted;
+            renderCasinoTable(sorted);
+
+            // Обновление индикаторов сортировки
+            document.querySelectorAll('th').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+            });
+            const header = event.target.closest('th');
+            if (header) {
+                header.classList.add(sortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
+            }
+        }
+
+        // Поиск в таблице
+        document.getElementById('searchInput')?.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#casinoTableBody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+
+        // Автообновление
+        document.getElementById('autoRefreshCheckbox')?.addEventListener('change', (e) => {
+            const toggle = document.getElementById('autoRefreshToggle');
+            if (e.target.checked) {
+                toggle.classList.add('active');
+                autoRefreshInterval = setInterval(() => {
+                    loadAllStats();
+                    showToast('📊 Данные обновлены');
+                }, 30000);
+            } else {
+                toggle.classList.remove('active');
+                if (autoRefreshInterval) {
+                    clearInterval(autoRefreshInterval);
+                    autoRefreshInterval = null;
+                }
+            }
+        });
+
+        // Экспорт данных
+        function exportData() {
+            if (!currentData || !currentData.breakdown) {
+                showToast('❌ Нет данных для экспорта');
+                return;
+            }
+
+            const csv = [
+                ['Казино', 'Кликов', 'Конверсия (%)'],
+                ...currentData.breakdown.map(c => [
+                    c.label || c.casinoId || 'Неизвестно',
+                    c.clicks,
+                    c.conversion
+                ])
+            ].map(row => row.join(',')).join('\n');
+
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `casino-stats-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            showToast('✅ Данные экспортированы');
+        }
+
+        // Вспомогательные функции
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+        }
+
+        function getConversionBadgeClass(conversion) {
+            if (conversion >= 5) return 'badge-high';
+            if (conversion >= 2) return 'badge-medium';
+            return 'badge-low';
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease-out reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
         }
 
         // Обработчики фильтров
@@ -384,7 +1086,7 @@
                 document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 currentPeriod = btn.getAttribute('data-period');
-                loadStats();
+                loadAllStats();
             });
         });
 
@@ -393,8 +1095,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
