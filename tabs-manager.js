@@ -49,7 +49,15 @@
         const category = categoriesConfig[categoryId];
         if (!category) return '';
 
-        const cardsHtml = casinos.map(renderCasinoCard).join('');
+        // Сортируем казино так, чтобы Dragonmoney был виден (не в самом конце)
+        const sortedCasinos = [...casinos].sort((a, b) => {
+            // Dragonmoney должен быть ближе к началу для лучшей видимости
+            if (a.id === 'dragonmoney') return -1;
+            if (b.id === 'dragonmoney') return 1;
+            return 0;
+        });
+
+        const cardsHtml = sortedCasinos.map(renderCasinoCard).join('');
 
         return `
             <div class="tab-content" data-tab="${categoryId}" style="display: none;">

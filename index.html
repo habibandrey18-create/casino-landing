@@ -1656,6 +1656,84 @@
             /* Карточки казино - одна в столбик на мобильных */
             .casino-cards {
                 gap: 1.25rem;
+                min-height: auto !important; /* Убираем ограничения по высоте */
+                max-height: none !important; /* Убираем ограничения по высоте */
+                display: flex !important; /* Обеспечиваем правильное отображение */
+                flex-direction: column !important; /* Вертикальное расположение */
+                position: relative !important; /* Обеспечиваем правильное позиционирование */
+                z-index: 1 !important; /* Обеспечиваем видимость */
+                clip-path: none !important; /* Убираем возможные ограничения clip-path */
+                clip: auto !important; /* Убираем возможные ограничения clip */
+            }
+            
+            /* Обеспечиваем видимость всех карточек казино на мобильных */
+            .casino-card {
+                display: flex !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                height: auto !important;
+                max-height: none !important;
+                min-height: auto !important;
+                position: relative !important;
+                z-index: 1 !important;
+                clip-path: none !important;
+                clip: auto !important;
+            }
+            
+            /* Убеждаемся, что секция с вкладками казино не обрезает контент */
+            #top-royal.section {
+                overflow: visible !important;
+                min-height: auto !important;
+                max-height: none !important;
+                clip-path: none !important;
+                clip: auto !important;
+            }
+            
+            /* Убеждаемся, что контейнер вкладок не обрезает контент */
+            #casino-tabs-container .tabs-content {
+                overflow: visible !important;
+                min-height: auto !important;
+                max-height: none !important;
+                clip-path: none !important;
+                clip: auto !important;
+            }
+            
+            /* Убеждаемся, что контент вкладок не обрезается на мобильных */
+            .tab-content {
+                clip-path: none !important;
+                clip: auto !important;
+            }
+            
+            /* Убеждаемся, что body и html не ограничивают прокрутку */
+            body, html {
+                overflow-y: auto !important;
+                overflow-x: hidden !important;
+                height: auto !important;
+                max-height: none !important;
+            }
+            
+            /* Убеждаемся, что все элементы внутри секции с вкладками казино видны */
+            #top-royal.section * {
+                overflow: visible !important;
+                clip-path: none !important;
+                clip: auto !important;
+            }
+            
+            /* Убеждаемся, что контейнер вкладок и его содержимое видны */
+            #casino-tabs-container,
+            #casino-tabs-container * {
+                overflow: visible !important;
+                clip-path: none !important;
+                clip: auto !important;
+            }
+            
+            /* Убеждаемся, что карточки казино видны и прокручиваются */
+            .casino-card[data-casino-id="dragonmoney"] {
+                display: flex !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                position: relative !important;
+                z-index: 10 !important;
             }
 
             .casino-card {
@@ -1775,8 +1853,66 @@
                 inset 0 1px 0 rgba(255, 255, 255, 0.15),
                 inset 0 -1px 0 rgba(0, 212, 255, 0.1);
             position: relative;
-            overflow: hidden;
+            overflow: hidden; /* Для декоративных элементов внутри */
             scroll-margin-top: 120px;
+        }
+        
+        /* Специальное правило для секции с вкладками казино - разрешаем прокрутку контента */
+        #top-royal.section {
+            overflow: visible !important; /* Разрешаем прокрутку контента */
+        }
+        
+        /* Убеждаемся, что внутренний контент секции не обрезается */
+        #top-royal.section > * {
+            overflow: visible !important;
+        }
+        
+        /* Исключение для секции с вкладками казино - разрешаем прокрутку контента */
+        .section #casino-tabs-container {
+            overflow: visible;
+        }
+        
+        /* Убеждаемся, что секция с вкладками казино не обрезает контент */
+        #top-royal.section {
+            overflow: visible !important;
+            clip-path: none !important; /* Убираем возможные ограничения clip-path */
+            clip: auto !important; /* Убираем возможные ограничения clip */
+            min-height: auto !important;
+            max-height: none !important;
+            height: auto !important;
+        }
+        
+        /* Убеждаемся, что контейнер вкладок не обрезает контент */
+        #casino-tabs-container {
+            overflow: visible !important;
+            min-height: auto !important;
+            max-height: none !important;
+            height: auto !important;
+        }
+        
+        #casino-tabs-container .tabs-content {
+            overflow: visible !important;
+            min-height: auto !important;
+            max-height: none !important;
+            height: auto !important;
+        }
+        
+        /* Убеждаемся, что контент вкладок не обрезается */
+        .tab-content {
+            overflow: visible !important;
+            clip-path: none !important;
+            clip: auto !important;
+            min-height: auto !important;
+            max-height: none !important;
+            height: auto !important;
+        }
+        
+        /* Убеждаемся, что карточки казино не обрезаются */
+        .casino-cards {
+            overflow: visible !important;
+            min-height: auto !important;
+            max-height: none !important;
+            height: auto !important;
         }
         
         /* Убеждаемся, что секция "Инструменты" имеет правильный отступ снизу */
@@ -3303,6 +3439,20 @@
             .section {
                 padding: 1.5rem 1rem;
                 margin-bottom: 2rem;
+                overflow: visible !important; /* Разрешаем прокрутку контента на мобильных */
+            }
+            
+            /* Обеспечиваем правильную прокрутку для контейнера вкладок казино */
+            #casino-tabs-container {
+                overflow: visible !important;
+            }
+            
+            .tab-content {
+                overflow: visible !important;
+            }
+            
+            .casino-cards {
+                overflow: visible !important;
             }
             
             .support-section {
